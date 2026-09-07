@@ -12,7 +12,8 @@ public struct ShakeDetector {
         samples.removeAll { time - $0.1 > 0.55 }
         guard time - lastTrigger > 1, samples.count >= 5 else { return false }
         // Reject jitter and long, mostly straight drags. Count significant direction changes.
-        let threshold = 14 / max(0.5, sensitivity)
+        let sensitivity = max(0.1, sensitivity)
+        let threshold = 14 / sensitivity
         var anchor = samples[0].0.x
         var direction = 0
         var reversals = 0

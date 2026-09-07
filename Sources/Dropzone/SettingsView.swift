@@ -51,7 +51,7 @@ struct SettingsView: View {
                 Text(L("Встряхните курсор, удерживая файлы из Finder.")).font(.caption).foregroundStyle(.secondary)
                 Divider()
                 Picker(L("Чувствительность"), selection: $settings.sensitivity) {
-                    Text(L("Низкая")).tag(0.7); Text(L("Средняя")).tag(1.0); Text(L("Высокая")).tag(1.5)
+                    Text(L("Низкая")).tag(0.35); Text(L("Средняя")).tag(1.0); Text(L("Высокая")).tag(1.5)
                 }
             }
             card {

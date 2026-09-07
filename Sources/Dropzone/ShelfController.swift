@@ -26,6 +26,8 @@ import DropzoneCore
     weak var menuAnchor: NSView?
     private var pointer = NSEvent.mouseLocation
     private var timer: Timer?
+    private var visibilityTimer: Timer?
+    private var wantsVisible = false
     private var lastTick = ProcessInfo.processInfo.systemUptime
     private var subscriptions: Set<AnyCancellable> = []
     private var confirmingClose = false
@@ -53,21 +55,55 @@ import DropzoneCore
             if enabled { self?.pointerMoved(NSEvent.mouseLocation) } else { self?.stopMotion() }
         }.store(in: &subscriptions)
     }
-    var visible: Bool { panel.isVisible }
+    var visible: Bool { wantsVisible }
     func show(activate: Bool = false) {
         pointer = NSEvent.mouseLocation
-        if !visible {
+        if !panel.isVisible {
+            panel.alphaValue = 0
             let screen = screenAt(pointer)
             panel.setFrameOrigin(motion.target(pointer: pointer, size: panel.frame.size, screen: screen.visibleFrame))
         }
+        wantsVisible = true
+        panel.ignoresMouseEvents = false
         panel.orderFrontRegardless()
+        animateVisibility(to: 1)
         store.refresh()
         if activate { NSApp.activate(ignoringOtherApps: true); panel.makeKey(); panel.makeFirstResponder(hosting) }
         pointerMoved(pointer)
     }
     func hide() {
-        panel.orderOut(nil); stopMotion()
+        wantsVisible = false
+        panel.ignoresMouseEvents = true
+        stopMotion()
+        animateVisibility(to: 0)
         if QLPreviewPanel.sharedPreviewPanelExists() { QLPreviewPanel.shared()?.orderOut(nil) }
+    }
+    private func animateVisibility(to target: CGFloat) {
+        visibilityTimer?.invalidate()
+        visibilityTimer = nil
+        let start = panel.alphaValue
+        guard panel.isVisible, abs(start - target) > 0.001 else {
+            panel.alphaValue = target
+            if target == 0 { panel.orderOut(nil) }
+            return
+        }
+        let began = ProcessInfo.processInfo.systemUptime
+        let duration = NSWorkspace.shared.accessibilityDisplayShouldReduceMotion ? 0.08 : (target == 1 ? 0.18 : 0.14)
+        let clock = Timer(timeInterval: 1 / 60, repeats: true) { [weak self] clock in
+            MainActor.assumeIsolated {
+                guard let self else { clock.invalidate(); return }
+                let t = min((ProcessInfo.processInfo.systemUptime - began) / duration, 1)
+                let eased = t * t * (3 - 2 * t)
+                self.panel.alphaValue = start + (target - start) * eased
+                if t >= 1 {
+                    clock.invalidate()
+                    self.visibilityTimer = nil
+                    if !self.wantsVisible { self.panel.orderOut(nil) }
+                }
+            }
+        }
+        RunLoop.main.add(clock, forMode: .common)
+        visibilityTimer = clock
     }
     func closeShelf() {
         guard !confirmingClose else { return }

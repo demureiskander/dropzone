@@ -61,6 +61,17 @@ final class MotionTests: XCTestCase {
         let hits = xs.enumerated().map { detector.update(point: CGPoint(x: $0.element, y: 0), time: Double($0.offset) * 0.08) }
         XCTAssertTrue(hits.contains(true))
     }
+    func testLowSensitivityRequiresTwiceTheShakeAmplitude() {
+        func triggers(amplitude: CGFloat, sensitivity: Double) -> Bool {
+            var detector = ShakeDetector()
+            return [CGFloat(0), amplitude, 0, amplitude, 0, amplitude].enumerated().map {
+                detector.update(point: CGPoint(x: $0.element, y: 0), time: Double($0.offset) * 0.08, sensitivity: sensitivity)
+            }.contains(true)
+        }
+        XCTAssertTrue(triggers(amplitude: 38, sensitivity: 0.7))
+        XCTAssertFalse(triggers(amplitude: 38, sensitivity: 0.35))
+        XCTAssertTrue(triggers(amplitude: 76, sensitivity: 0.35))
+    }
     func testOrdinaryDragAndJitterDoNotShake() {
         var straight = ShakeDetector(); var jitter = ShakeDetector()
         for i in 0..<100 {

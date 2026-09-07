@@ -28,7 +28,10 @@ import Carbon
         closeThreshold = min(max(defaults.integer(forKey: "closeThreshold"), 1), 1000)
         follow = defaults.bool(forKey: "follow"); shake = defaults.bool(forKey: "shake")
         notch = defaults.bool(forKey: "notch"); keepOpen = defaults.bool(forKey: "keepOpen")
-        sensitivity = defaults.double(forKey: "sensitivity"); theme = defaults.string(forKey: "theme") ?? "system"
+        let savedSensitivity = defaults.double(forKey: "sensitivity")
+        sensitivity = savedSensitivity == 0.7 ? 0.35 : savedSensitivity
+        if savedSensitivity == 0.7 { defaults.set(0.35, forKey: "sensitivity") }
+         theme = defaults.string(forKey: "theme") ?? "system"
         shortcutKey = UInt32(defaults.integer(forKey: "shortcutKey"))
         shortcutModifiers = UInt32(defaults.integer(forKey: "shortcutModifiers"))
         shortcutEnabled = defaults.bool(forKey: "shortcutEnabled")
