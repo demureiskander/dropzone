@@ -17,6 +17,16 @@ struct SettingsView: View {
                 nav(L("Поведение полки"), "rectangle.on.rectangle", 1)
                 nav(L("Основные"), "gearshape", 2)
                 Spacer()
+                VStack(spacing: 8) {
+                    Link(destination: URL(string: "https://web.tribute.tg/d/GLT")!) {
+                        Label(L("Поддержать донатом"), systemImage: "heart.fill")
+                            .frame(maxWidth: .infinity)
+                    }.buttonStyle(.borderedProminent)
+                    Link(destination: URL(string: "https://github.com/demureiskander/dropzone")!) {
+                        Label(L("Репозиторий GitHub"), systemImage: "chevron.left.forwardslash.chevron.right")
+                            .frame(maxWidth: .infinity)
+                    }.buttonStyle(.bordered)
+                }.controlSize(.large).padding(.horizontal, 10).padding(.bottom, 16)
                 Label("Dropzone", systemImage: "tray.and.arrow.down.fill").font(.headline).padding(.horizontal, 14)
                 Text("0.1.0 · Alpha").font(.caption).foregroundStyle(.secondary).padding(.horizontal, 14).padding(.bottom, 20)
             }.frame(width: 196).padding(.horizontal, 10).background(.quaternary.opacity(0.5))

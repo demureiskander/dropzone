@@ -10,6 +10,8 @@ import Foundation
 }
 
 private let englishStrings: [String: String] = [
+    "Поддержать донатом": "Donate",
+    "Репозиторий GitHub": "GitHub Repository",
     " · без содержимого папок": " · excluding folder contents",
     " — изменить": " — Edit",
     ". Оригиналы файлов останутся на месте.": ". Your original files will stay in place.",
