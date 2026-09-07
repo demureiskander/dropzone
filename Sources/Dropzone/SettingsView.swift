@@ -74,7 +74,13 @@ struct SettingsView: View {
             }
             card {
                 Toggle("Оставлять открытой после передачи", isOn: $settings.keepOpen).toggleStyle(.switch)
-                Text("При выключении полка скрывается после принятого перетаскивания. Содержимое сохраняется до очистки или выхода.").font(.caption).foregroundStyle(.secondary)
+                Text("При выключении полка скрывается после принятого перетаскивания. Содержимое сохраняется до закрытия крестиком, очистки или выхода.").font(.caption).foregroundStyle(.secondary)
+            }
+            card {
+                Toggle("Подтверждать закрытие", isOn: $settings.confirmClose).toggleStyle(.switch)
+                Stepper("Если элементов больше \(settings.closeThreshold)", value: $settings.closeThreshold, in: 1...1000)
+                    .disabled(!settings.confirmClose)
+                Text("Крестик и ⌘W закрывают полку и очищают её. При превышении порога появится вопрос. Оригиналы файлов сохраняются.").font(.caption).foregroundStyle(.secondary)
             }
             card {
                 Label("Оригиналы остаются на месте", systemImage: "doc.on.doc")
@@ -107,7 +113,7 @@ struct SettingsView: View {
                 Text("Быстрый старт").font(.headline)
                 Text("1. Возьмите файл и встряхните курсор.\n2. Положите его на полку.\n3. Переключитесь в нужное окно и заберите файл.")
                     .font(.system(size: 13)).lineSpacing(6)
-                Text("Пробел — Quick Look · ⌘A — выбрать всё\nDelete — убрать с полки · ⌘F — следование")
+                Text("Пробел — Quick Look · ⌘A — выбрать всё\nDelete — убрать с полки · ⌘F — следование\n⌘, — настройки (при активной полке, любая раскладка)")
                     .font(.caption).foregroundStyle(.secondary)
             }
         }

@@ -22,14 +22,14 @@ Open `Package.swift` in Xcode to browse, build, and debug the targets. The build
 - On a MacBook with a camera notch, drag towards it for a glow; an outline marks the active drop zone.
 - Drop files or folders onto the shelf or menu bar icon. Add files from different locations.
 - Drag the compact stack to copy everything. Expand the shelf for grid/list views and select individual files; Command-click adds to selection.
-- **Space:** Quick Look. **⌘A:** select all. **Delete:** remove shelf references. **⌘F:** toggle follow. **⌘W/Escape:** hide shelf.
+- **Space:** Quick Look. **⌘A:** select all. **Delete:** remove shelf references. **⌘F:** toggle follow. **⌘W:** close and clear shelf. **Escape:** hide shelf. **⌘,** opens Settings while Dropzone has keyboard focus, using the physical comma key in any layout.
 - Double-click a file to reveal it in Finder. The **…** menu provides file actions and settings. Right-click the menu bar icon for Quit and Settings.
 
 Follow mode is enabled by default. The shelf moves alongside the pointer, changes sides with inertia, slows as you approach, and pauses while you interact. Its toggle persists between launches. The expanded view stays still for file selection.
 
 ## File handling
 
-Adding a Finder file stores a reference to the original. Dragging out supports **copy only**. Clearing the shelf does not delete the originals. Hiding preserves the shelf for this session; quitting discards the temporary list. Renamed files are resolved through bookmarks; missing files are marked unavailable when refreshed. Images and videos can show thumbnails; documents retain their system file icons.
+Adding a Finder file stores a reference to the original. Dragging out supports **copy only**. Clearing the shelf does not delete the originals. Closing with **×** or **⌘W** clears the shelf. By default, closing more than five items asks for confirmation; the toggle and threshold (1–1000) are in Settings → Shelf Behavior. Cancel keeps the shelf intact. Escape, the tray toggle, and hiding after a successful drag preserve the shelf for this session; quitting discards the temporary list. Renamed files are resolved through bookmarks; missing files are marked unavailable when refreshed. Images and videos can show thumbnails; documents retain their system file icons.
 
 This alpha accepts file URLs. Browser image exports, Photos file promises, text/URL snippets, automatic screenshot capture, multiple shelves, and cloud services are not included yet. Some source applications provide files differently and may not be compatible. See [validation](docs/VALIDATION.md) for what has actually been tested.
 

@@ -54,16 +54,18 @@ public struct InertialFollower {
     public mutating func advance(from: CGPoint, to: CGPoint, deltaTime: Double, mobility: CGFloat = 1, reduceMotion: Bool = false) -> CGPoint {
         let dt = min(max(deltaTime, 0), 0.035)
         guard dt > 0 else { return from }
-        let delta = CGPoint(x: to.x - from.x, y: to.y - from.y)
-        let distance = hypot(delta.x, delta.y)
-        let maxSpeed: CGFloat = reduceMotion ? 800 : 620
-        let desiredSpeed = min(distance * 4.2, maxSpeed) * min(max(mobility, 0), 1)
-        let desired = distance > 0.01 ? CGPoint(x: delta.x / distance * desiredSpeed, y: delta.y / distance * desiredSpeed) : .zero
-        let blend = 1 - exp(-dt / (reduceMotion ? 0.12 : 0.24))
-        velocity.x += (desired.x - velocity.x) * blend
-        velocity.y += (desired.y - velocity.y) * blend
-        if speed < 0.6 && (distance < 0.5 || mobility == 0) { velocity = .zero }
-        return CGPoint(x: from.x + velocity.x * dt, y: from.y + velocity.y * dt)
+        let mobility = min(max(mobility, 0), 1)
+        let target = CGPoint(x: from.x + (to.x - from.x) * mobility, y: from.y + (to.y - from.y) * mobility)
+        // Critically damped spring: original responsive pace without a speed cap.
+        // Exact integration preserves velocity through turns and does not oscillate.
+        let omega: CGFloat = reduceMotion ? 26 : 18
+        let decay = exp(-omega * dt)
+        let error = CGPoint(x: from.x - target.x, y: from.y - target.y)
+        let impulse = CGPoint(x: (velocity.x + omega * error.x) * dt, y: (velocity.y + omega * error.y) * dt)
+        let next = CGPoint(x: target.x + (error.x + impulse.x) * decay, y: target.y + (error.y + impulse.y) * decay)
+        velocity = CGPoint(x: (velocity.x - omega * impulse.x) * decay, y: (velocity.y - omega * impulse.y) * decay)
+        if speed < 0.6 && (hypot(next.x - to.x, next.y - to.y) < 0.5 || mobility == 0) { velocity = .zero }
+        return next
     }
 }
 

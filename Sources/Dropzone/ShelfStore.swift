@@ -14,6 +14,10 @@ import Combine
     var exporting = false
     var menuOpen = false
     private var generation = 0
+    private var importingURLs: [URL] = []
+    var closeItemCount: Int {
+        Set((items.map(\.url) + importingURLs + importQueue).map { $0.standardizedFileURL }).count
+    }
     private var importQueue: [URL] = []
     var chosen: [FileReference] { selection.isEmpty ? items : items.filter { selection.contains($0.id) } }
     var countLabel: String {
@@ -36,6 +40,7 @@ import Combine
         guard !importQueue.isEmpty else { loading = false; return }
         loading = true
         let urls = importQueue
+        importingURLs = urls
         importQueue = []
         let version = generation
         Task {
@@ -48,6 +53,7 @@ import Combine
                 return (files, errors)
             }.value
             guard version == generation else { return }
+            importingURLs = []
             var inventory = ShelfInventory()
             inventory.append(items); inventory.append(result.0)
             items = inventory.items
@@ -64,7 +70,7 @@ import Combine
         }
     }
     func clear() {
-        generation += 1; importQueue = []; loading = false
+        generation += 1; importingURLs = []; importQueue = []; loading = false
         items = []; selection = []; error = nil
     }
     func removeSelection() {

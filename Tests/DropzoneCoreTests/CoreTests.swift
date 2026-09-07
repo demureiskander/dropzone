@@ -10,7 +10,7 @@ final class MotionTests: XCTestCase {
         point = follower.advance(from: point, to: target, deltaTime: 1 / 60)
         let initialSpeed = follower.speed
         XCTAssertGreaterThan(initialSpeed, 0)
-        XCTAssertLessThan(initialSpeed, 60)
+        XCTAssertLessThan(point.x, 50, "The first frame eases in rather than jumping to the target")
         for _ in 0..<20 { point = follower.advance(from: point, to: target, deltaTime: 1 / 60) }
         let movingSpeed = follower.speed
         point = follower.advance(from: point, to: target, deltaTime: 1 / 60, mobility: 0)
@@ -22,12 +22,23 @@ final class MotionTests: XCTestCase {
     func testSideSwapPreservesVelocityContinuity() {
         var follower = InertialFollower()
         var point = CGPoint.zero
-        for _ in 0..<30 { point = follower.advance(from: point, to: CGPoint(x: 1200, y: 0), deltaTime: 1 / 60) }
+        let target = CGPoint(x: 1200, y: 0)
+        for _ in 0..<6 { point = follower.advance(from: point, to: target, deltaTime: 1 / 60) }
         let before = follower.velocity.x
-        let next = follower.advance(from: point, to: CGPoint(x: -1200, y: 0), deltaTime: 1 / 60)
+        let next = follower.advance(from: point, to: CGPoint(x: -1200, y: 0), deltaTime: 0.001)
         XCTAssertGreaterThan(follower.velocity.x, 0, "A target swap should brake the current movement before reversing")
-        XCTAssertLessThan(abs(follower.velocity.x - before), 100)
-        XCTAssertLessThan(hypot(next.x - point.x, next.y - point.y), 11)
+        XCTAssertLessThan(abs(follower.velocity.x - before), before * 0.2)
+        XCTAssertLessThan(hypot(next.x - point.x, next.y - point.y), 10)
+    }
+    func testFollowRegainsResponsivePaceWithoutOvershoot() {
+        var follower = InertialFollower()
+        var point = CGPoint.zero
+        let target = CGPoint(x: 1000, y: 0)
+        for _ in 0..<18 {
+            point = follower.advance(from: point, to: target, deltaTime: 1 / 60)
+            XCTAssertLessThanOrEqual(point.x, target.x)
+        }
+        XCTAssertGreaterThan(point.x, 950, "A stationary target should be almost reached in 300 ms, as before the slowdown")
     }
     func testApproachProgressivelyReducesMobility() {
         XCTAssertEqual(InertialFollower.mobility(clearance: 20), 0)
@@ -152,5 +163,17 @@ final class FileTests: XCTestCase {
         let entry = try FileReference(url: directory.appendingPathComponent("folder"))
         XCTAssertTrue(entry.isDirectory)
         XCTAssertTrue(entry.available)
+    }
+}
+
+final class ClosePolicyTests: XCTestCase {
+    func testOnlyCountsStrictlyAboveThresholdRequireConfirmation() {
+        for count in [0, 1, 5] { XCTAssertFalse(ClosePolicy.requiresConfirmation(count: count, enabled: true, threshold: 5)) }
+        XCTAssertTrue(ClosePolicy.requiresConfirmation(count: 6, enabled: true, threshold: 5))
+    }
+    func testThresholdAndToggleAreRespected() {
+        XCTAssertFalse(ClosePolicy.requiresConfirmation(count: 30, enabled: true, threshold: 30))
+        XCTAssertTrue(ClosePolicy.requiresConfirmation(count: 31, enabled: true, threshold: 30))
+        XCTAssertFalse(ClosePolicy.requiresConfirmation(count: 1000, enabled: false, threshold: 5))
     }
 }

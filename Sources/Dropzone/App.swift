@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import Combine
+import Carbon
 
 @main enum DropzoneApp {
     @MainActor static func main() {
@@ -19,6 +20,7 @@ import Combine
     private var statusItem: NSStatusItem!
     private var settingsWindow: NSWindow?
     private var hotKey: HotKey!
+    private var settingsKeyMonitor: Any?
     private var subscriptions: Set<AnyCancellable> = []
     func applicationDidFinishLaunching(_ notification: Notification) {
         settings.applyTheme()
@@ -31,6 +33,16 @@ import Combine
         let quitItem = NSMenuItem(title: "Завершить Dropzone", action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self; appMenu.addItem(quitItem)
         appMenuItem.submenu = appMenu; mainMenu.addItem(appMenuItem); NSApp.mainMenu = mainMenu
+        // Use the physical comma key, so Russian Б and other layouts work too.
+        // Local scope preserves the standard Settings shortcut in other applications.
+        settingsKeyMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
+            let modifiers = event.modifierFlags.intersection([.command, .option, .control, .shift])
+            if event.keyCode == UInt16(kVK_ANSI_Comma), modifiers == .command {
+                self?.showSettings()
+                return nil
+            }
+            return event
+        }
         shelf = ShelfController(settings: settings)
         shelf.openSettings = { [weak self] in self?.showSettings() }
         activation = ActivationController(shelf: shelf, settings: settings)

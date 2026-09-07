@@ -5,7 +5,7 @@ Environment: macOS 26.5.2 (25F84), arm64, Xcode 26.6 (17F113), Swift 6.3.3. This
 ## Passed
 
 - Debug and release builds, `.app` packaging, ad-hoc signature verification, Info.plist lint, native application launch.
-- 17 XCTest cases: file-reference deduplication, equal filenames in different folders, safe removal/clear, missing originals, bookmark resolution after rename, directory references, intentional shake vs jitter/straight drags, gesture reset, direction hysteresis, proximity pause, screen bounds, smooth stepping, inertial acceleration/braking, continuous reversal and settling.
+- 20 XCTest cases: strict close threshold and toggle, responsive follow convergence, file-reference deduplication, equal filenames in different folders, safe removal/clear, missing originals, bookmark resolution after rename, directory references, intentional shake vs jitter/straight drags, gesture reset, direction hysteresis, proximity pause, screen bounds, smooth stepping, inertial acceleration/braking, continuous reversal and settling.
 - The native accessibility tree exposes Settings, compact/grid shelf views, follow toggle, file content and file menu controls.
 - After restarting the updated release build, an empty test TXT was imported through the macOS open-file event. Screenshots of both compact and expanded grid views confirm the system text-document icon rather than a white rectangle and the correct singular file-count label.
 - The author confirmed the initial application runs, accepts a TXT file, displays expanded content and follows the pointer. Their screenshot exposed the menu-anchor and blank-text-thumbnail bugs addressed in this revision.
@@ -15,8 +15,16 @@ Environment: macOS 26.5.2 (25F84), arm64, Xcode 26.6 (17F113), Swift 6.3.3. This
 
 - The menu is anchored to an NSView occupying the actual ellipsis button; its position no longer assumes the hosting view's coordinate orientation.
 - Document icons come from NSWorkspace. Quick Look thumbnails are requested only for images/movies, avoiding blank page previews for empty TXT files.
-- Following uses continuous velocity with capped speed, soft proximity braking and gradual acceleration after the existing pause delay. Actual interaction still fixes the target in place.
+- Following uses continuous velocity with a critically damped spring and no speed cap, soft proximity braking and gradual acceleration after the existing pause delay. Actual interaction still fixes the target in place.
 - Russian file-count labels use singular/few/many forms.
+
+## Closing revision checks
+
+- Release rebuilt and launched with simplified transparent icon (`sips` confirms alpha).
+- ⌘, opened Settings through Computer Use. The handler matches hardware key code rather than layout-dependent characters; a physical multi-layout keyboard check remains pending.
+- Behavior settings expose the enabled confirmation toggle and threshold 5.
+- Six generated test TXT files produced the confirmation dialog when clicking ×. Cancel preserved all six references; confirming cleared the shelf. Their source contents remained intact.
+- 20 XCTest cases passed, including >5 boundary, custom threshold, disabled confirmation, velocity continuity and >95% target convergence within 300 ms.
 
 ## Remaining manual coverage
 

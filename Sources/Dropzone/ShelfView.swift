@@ -34,8 +34,8 @@ struct ShelfView: View {
     }
     private var header: some View {
         HStack(spacing: 8) {
-            roundButton(store.expanded ? "chevron.left" : "xmark", label: store.expanded ? "Свернуть" : "Скрыть полку") {
-                if store.expanded { controller.setExpanded(false) } else { controller.hide() }
+            roundButton(store.expanded ? "chevron.left" : "xmark", label: store.expanded ? "Свернуть" : "Закрыть и очистить полку") {
+                if store.expanded { controller.setExpanded(false) } else { controller.closeShelf() }
             }
             if store.expanded {
                 VStack(alignment: .leading, spacing: 3) {

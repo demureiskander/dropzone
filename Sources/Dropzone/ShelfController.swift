@@ -28,6 +28,7 @@ import DropzoneCore
     private var timer: Timer?
     private var lastTick = ProcessInfo.processInfo.systemUptime
     private var subscriptions: Set<AnyCancellable> = []
+    private var confirmingClose = false
     private var previewURLs: [URL] = []
     private var hosting: DropHostingView<ShelfView>!
 
@@ -68,6 +69,25 @@ import DropzoneCore
         panel.orderOut(nil); stopMotion()
         if QLPreviewPanel.sharedPreviewPanelExists() { QLPreviewPanel.shared()?.orderOut(nil) }
     }
+    func closeShelf() {
+        guard !confirmingClose else { return }
+        if ClosePolicy.requiresConfirmation(count: store.closeItemCount, enabled: settings.confirmClose, threshold: settings.closeThreshold) {
+            confirmingClose = true
+            stopMotion()
+            let alert = NSAlert()
+            alert.messageText = "Закрыть полку и очистить содержимое?"
+            alert.informativeText = "На полке элементов: \(store.closeItemCount). Оригиналы файлов останутся на месте."
+            alert.alertStyle = .warning
+            alert.addButton(withTitle: "Отмена")
+            alert.addButton(withTitle: "Закрыть и очистить")
+            NSApp.activate(ignoringOtherApps: true)
+            let response = alert.runModal()
+            confirmingClose = false
+            guard response == .alertSecondButtonReturn else { pointerMoved(NSEvent.mouseLocation); return }
+        }
+        store.clear()
+        hide()
+    }
     func toggle() { visible ? hide() : show(activate: true) }
     func setExpanded(_ value: Bool) {
         store.expanded = value
@@ -99,7 +119,7 @@ import DropzoneCore
         guard visible, settings.follow else { stopMotion(); return }
         let now = ProcessInfo.processInfo.systemUptime
         let dt = now - lastTick; lastTick = now
-        let interacting = store.hovering || store.interaction || store.exporting || store.menuOpen || store.expanded || QLPreviewPanel.sharedPreviewPanelExists() && QLPreviewPanel.shared().isVisible
+        let interacting = confirmingClose || store.hovering || store.interaction || store.exporting || store.menuOpen || store.expanded || QLPreviewPanel.sharedPreviewPanelExists() && QLPreviewPanel.shared().isVisible
         let paused = motion.isPaused(pointer: pointer, frame: panel.frame, time: now, interacting: interacting)
         if interacting { stopMotion(); return }
         let target = motion.target(pointer: pointer, size: panel.frame.size, screen: screenAt(pointer).visibleFrame)
@@ -164,7 +184,7 @@ import DropzoneCore
         guard panel.isKeyWindow else { return false }
         let command = event.modifierFlags.contains(.command)
         if command && event.charactersIgnoringModifiers == "a" { store.selectAll(); return true }
-        if command && event.charactersIgnoringModifiers == "w" { hide(); return true }
+        if command && event.keyCode == 13 { closeShelf(); return true }
         if event.keyCode == 53 { hide(); return true }
         if event.keyCode == 49 && !command { quickLook(); return true }
         if event.keyCode == 51 { store.removeSelection(); return true }
