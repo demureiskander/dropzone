@@ -25,3 +25,6 @@ xcuserdata/
 # Local output
 *.log
 tmp/
+
+# Private local visual references (not application assets)
+/design/references/
