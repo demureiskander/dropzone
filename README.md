@@ -25,7 +25,7 @@ Open `Package.swift` in Xcode to browse, build, and debug the targets. The build
 - **Space:** Quick Look. **⌘A:** select all. **Delete:** remove shelf references. **⌘F:** toggle follow. **⌘W:** close and clear shelf. **Escape:** hide shelf. **⌘,** opens Settings while Dropzone has keyboard focus, using the physical comma key in any layout.
 - Double-click a file to reveal it in Finder. The **…** menu provides file actions and settings. Right-click the menu bar icon for Quit and Settings.
 
-Follow mode is enabled by default. The shelf moves alongside the pointer, changes sides with inertia, slows as you approach, and pauses while you interact. Its toggle persists between launches. The expanded view stays still for file selection.
+Follow mode is enabled by default. The shelf moves alongside the pointer, changes sides with inertia, slows as you approach, and pauses while you interact. Its toggle persists between launches. Both compact and expanded views follow the pointer. File selection remains reachable because proximity and active interactions pause movement.
 
 ## File handling
 

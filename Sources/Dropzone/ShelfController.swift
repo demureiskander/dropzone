@@ -95,6 +95,7 @@ import DropzoneCore
         let origin = FollowMotion.clamp(CGPoint(x: panel.frame.minX, y: panel.frame.maxY - size.height), size: size, screen: screenAt(pointer).visibleFrame)
         panel.setFrame(NSRect(origin: origin, size: size), display: true)
         panel.makeKey(); panel.makeFirstResponder(hosting)
+        pointerMoved(NSEvent.mouseLocation)
     }
     func screensChanged() {
         guard visible else { return }
@@ -119,7 +120,7 @@ import DropzoneCore
         guard visible, settings.follow else { stopMotion(); return }
         let now = ProcessInfo.processInfo.systemUptime
         let dt = now - lastTick; lastTick = now
-        let interacting = confirmingClose || store.hovering || store.interaction || store.exporting || store.menuOpen || store.expanded || QLPreviewPanel.sharedPreviewPanelExists() && QLPreviewPanel.shared().isVisible
+        let interacting = confirmingClose || store.hovering || store.interaction || store.exporting || store.menuOpen || QLPreviewPanel.sharedPreviewPanelExists() && QLPreviewPanel.shared().isVisible
         let paused = motion.isPaused(pointer: pointer, frame: panel.frame, time: now, interacting: interacting)
         if interacting { stopMotion(); return }
         let target = motion.target(pointer: pointer, size: panel.frame.size, screen: screenAt(pointer).visibleFrame)
