@@ -1,28 +1,53 @@
 # Dropzone
 
-Проект бесплатной open source утилиты для macOS: временная полка для файлов рядом с курсором, без искусственных задержек.
+A free, native macOS file shelf. Collect files, switch apps, and drag them out when you need them. No accounts, cloud uploads, analytics, or artificial delays.
 
-Статус: исследование и спецификация MVP. Исходников приложения, сборки и релиза пока нет. Получены 13 UI-референсов; в первую версию включены notch и плавное следование полки за курсором.
+**Status: 0.1.0 alpha.** Native Swift + AppKit + SwiftUI application with an initial Russian interface. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
 
-## Документация
+## Build and run
 
-- [Исследование Dropover и отзывов](docs/RESEARCH.md) — подтверждённые возможности, настройки, источники и ограничения исследования.
-- [Спецификация MVP](docs/MVP.md) — состав первой версии, поведение, настройки и критерии готовности.
-- [Дизайн и взаимодействия](docs/DESIGN.md) — разбор референсов, notch, два вида содержимого и следование за курсором.
-- [Технический план](docs/TECHNICAL_PLAN.md) — предлагаемая архитектура и порядок реализации.
-- [Правила разработки](CLAUDE.md).
-- [История изменений](CHANGELOG.md).
+Requires Xcode 16 or newer with the command line tools selected. No third-party Swift package dependencies.
 
-## Направление
+```sh
+swift test
+scripts/build.sh release
+open build/Dropzone.app
+```
 
-Собрать файлы из нескольких мест → временно положить на полку → переключиться в нужное окно → перетащить выбранное или всё содержимое.
+Open `Package.swift` in Xcode to browse, build, and debug the targets. The build script wraps the executable in a normal `.app` bundle and applies an ad-hoc signature for local development. Run the bundle for menu bar behavior and Launch at Login. Distribution builds are not yet Developer ID signed or notarized.
 
-Предлагаемый стек: Swift, AppKit для окон и drag-and-drop, SwiftUI для интерфейса. Предварительная минимальная версия — macOS 13; совместимость необходимо подтвердить прототипом.
+## Use
 
-Проект задуман для бесплатного распространения с открытым исходным кодом. Предлагаемая лицензия — MIT; выбор лицензии и файл `LICENSE` нужно оформить до публичного распространения кода. Публичный репозиторий пока не создан.
+- Click the menu bar tray icon, press **⌥⇧Space**, or shake while dragging files from Finder.
+- On a MacBook with a camera notch, drag towards it for a glow; an outline marks the active drop zone.
+- Drop files or folders onto the shelf or menu bar icon. Add files from different locations.
+- Drag the compact stack to copy everything. Expand the shelf for grid/list views and select individual files; Command-click adds to selection.
+- **Space:** Quick Look. **⌘A:** select all. **Delete:** remove shelf references. **⌘F:** toggle follow. **⌘W/Escape:** hide shelf.
+- Double-click a file to reveal it in Finder. The **…** menu provides file actions and settings. Right-click the menu bar icon for Quit and Settings.
 
-Название Dropzone используется как рабочее по решению автора. Уже существует [Dropzone компании Aptonic](https://aptonic.com/releasenotes), также связанный с перетаскиванием файлов на macOS. Перед публикацией стоит выбрать отличимое публичное название. Этот проект независим от Aptonic и Dropover.
+Follow mode is enabled by default. The shelf moves alongside the pointer, changes sides with inertia, slows as you approach, and pauses while you interact. Its toggle persists between launches. The expanded view stays still for file selection.
 
-## Работа с Git
+## File handling
 
-Основная ветка — `main`. Локальная история позволяет просматривать изменения и возвращаться к предыдущим состояниям. Значимые завершённые изменения сопровождаются записью в `CHANGELOG.md` и отдельным коммитом. Удалённый сервер добавляется при выборе площадки для публикации.
+Adding a Finder file stores a reference to the original. Dragging out supports **copy only**. Clearing the shelf does not delete the originals. Hiding preserves the shelf for this session; quitting discards the temporary list. Renamed files are resolved through bookmarks; missing files are marked unavailable when refreshed. Images and videos can show thumbnails; documents retain their system file icons.
+
+This alpha accepts file URLs. Browser image exports, Photos file promises, text/URL snippets, automatic screenshot capture, multiple shelves, and cloud services are not included yet. Some source applications provide files differently and may not be compatible. See [validation](docs/VALIDATION.md) for what has actually been tested.
+
+## Development
+
+- [Project instructions](CLAUDE.md)
+- [Research and sources](docs/RESEARCH.md)
+- [MVP scope](docs/MVP.md)
+- [Design and behavior](docs/DESIGN.md)
+- [Architecture](docs/TECHNICAL_PLAN.md)
+- [Validation and remaining checks](docs/VALIDATION.md)
+- [Changelog](CHANGELOG.md)
+- [Icon provenance and prompt](Resources/ASSET_PROVENANCE.md)
+
+The core motion and file-reference logic is isolated in `Sources/DropzoneCore`; the app lives in `Sources/Dropzone`. Run `swift test` for behavioral tests, `scripts/build.sh release` to create the application, and `scripts/icon.sh` to regenerate the ICNS from the included PNG. A [CI template](docs/ci/build.yml.example) builds and tests on macOS and uploads a development build. It is not enabled: the available GitHub token lacks the `workflow` scope. To enable it with suitable credentials, copy it to `.github/workflows/build.yml`.
+
+Only [demureiskander/dropzone](https://github.com/demureiskander/dropzone) is authorized for this project's GitHub work. Private local visual references under `design/references/` are excluded from Git and the app bundle.
+
+## License and name
+
+[MIT](LICENSE). Dropzone is the author's working name. A separate [Dropzone product by Aptonic](https://aptonic.com/releasenotes) already exists; this project is independent of Aptonic and Dropover. A distinct public product name remains a release-planning decision.

@@ -1,0 +1,84 @@
+import AppKit
+import DropzoneCore
+import Combine
+
+@MainActor final class ShelfStore: ObservableObject {
+    @Published var items: [FileReference] = []
+    @Published var selection: Set<String> = []
+    @Published var expanded = false
+    @Published var list = false
+    @Published var hovering = false
+    @Published var loading = false
+    @Published var error: String?
+    var interaction = false
+    var exporting = false
+    var menuOpen = false
+    private var generation = 0
+    private var importQueue: [URL] = []
+    var chosen: [FileReference] { selection.isEmpty ? items : items.filter { selection.contains($0.id) } }
+    var countLabel: String {
+        let n = items.count
+        let word = (11...14).contains(n % 100) ? "файлов" : n % 10 == 1 ? "файл" : (2...4).contains(n % 10) ? "файла" : "файлов"
+        return "\(n) \(word)"
+    }
+    var title: String { items.count == 1 ? items[0].name : countLabel }
+    var sizeLabel: String {
+        let bytes = items.filter { !$0.isDirectory }.reduce(Int64(0)) { $0 + $1.byteSize }
+        return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file) + (items.contains { $0.isDirectory } ? " · без содержимого папок" : "")
+    }
+
+    func add(_ urls: [URL]) {
+        importQueue += urls.filter(\.isFileURL)
+        guard !loading else { return }
+        processQueue()
+    }
+    private func processQueue() {
+        guard !importQueue.isEmpty else { loading = false; return }
+        loading = true
+        let urls = importQueue
+        importQueue = []
+        let version = generation
+        Task {
+            let result = await Task.detached(priority: .userInitiated) { () -> ([FileReference], [String]) in
+                var files: [FileReference] = []; var errors: [String] = []
+                for url in urls {
+                    do { files.append(try FileReference(url: url)) }
+                    catch { errors.append(url.lastPathComponent) }
+                }
+                return (files, errors)
+            }.value
+            guard version == generation else { return }
+            var inventory = ShelfInventory()
+            inventory.append(items); inventory.append(result.0)
+            items = inventory.items
+            if !result.1.isEmpty { error = "Не удалось прочитать: " + result.1.prefix(3).joined(separator: ", ") }
+            processQueue()
+        }
+    }
+    func refresh() {
+        let snapshot = items
+        Task {
+            let refreshed = await Task.detached { snapshot.map { $0.refreshed() } }.value
+            let updates = Dictionary(uniqueKeysWithValues: refreshed.map { ($0.id, $0) })
+            items = items.map { updates[$0.id] ?? $0 }
+        }
+    }
+    func clear() {
+        generation += 1; importQueue = []; loading = false
+        items = []; selection = []; error = nil
+    }
+    func removeSelection() {
+        let ids = Set(chosen.map(\.id))
+        items.removeAll { ids.contains($0.id) }; selection.subtract(ids)
+    }
+    func select(_ id: String, additive: Bool) {
+        if additive { if !selection.insert(id).inserted { selection.remove(id) } }
+        else { selection = [id] }
+    }
+    func selectAll() { selection = Set(items.map(\.id)) }
+    func validURLs() -> [URL] {
+        let refreshed = chosen.map { $0.refreshed() }
+        if refreshed.contains(where: { !$0.available }) { error = "Некоторые файлы недоступны. Проверьте оригиналы в Finder." }
+        return refreshed.filter(\.available).map(\.url)
+    }
+}

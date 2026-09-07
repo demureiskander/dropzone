@@ -1,10 +1,10 @@
 # Технический план
 
-Дата: 2026-09-08. Ниже предложенная архитектура и план проверки, а не реализованные компоненты.
+Дата: 2026-09-08. Ниже первоначальный план и актуализация после первой alpha. Подтверждённые результаты — в VALIDATION.md.
 
 ## Выбор основы
 
-Предлагаю нативное приложение на Swift: AppKit для полки, управления фокусом и drag-and-drop; SwiftUI для настроек и содержимого окна. Предварительная базовая платформа — macOS 13, с последующей проверкой доступности используемых API и сборок arm64/x86_64. Использовать Xcode-проект приложения; модель можно выделить в локальный Swift Package для тестирования.
+Предлагаю нативное приложение на Swift: AppKit для полки, управления фокусом и drag-and-drop; SwiftUI для настроек и содержимого окна. Предварительная базовая платформа — macOS 13, с последующей проверкой доступности используемых API и сборок arm64/x86_64. Реализованы Swift Package с отдельным DropzoneCore и скрипт сборки .app; Package.swift открывается в Xcode. Это упрощает воспроизводимую сборку без внешнего генератора проекта.
 
 Причина выбора — тесная работа с системными окнами и межприложенным drag-and-drop. Apple документирует file URLs, file promises и отдельные window collection behaviors для Spaces, full-screen и Stage Manager. Эти API дают основу; корректность сочетания флагов и поведение поверх чужих полноэкранных окон нужно подтвердить на практике. [AppKit drag-and-drop](https://developer.apple.com/documentation/appkit/supporting-collection-view-drag-and-drop-through-file-promises), [Window collection behaviors](https://developer.apple.com/documentation/appkit/nswindow/collectionbehavior-swift.struct?changes=_7%2C_7).
 
@@ -49,3 +49,7 @@
 ## Что не проверено на этом этапе
 
 Подтверждены Xcode по пути `/Applications/Xcode.app/Contents/Developer` и Swift 6.3.3, target arm64-apple-macosx26.0. Сборка приложения, разрешения, совместимость, производительность, drag-and-drop и signing environment ещё не проверены. UI-референсы получены. Численные бюджеты в MVP и параметры follow — цели будущей проверки.
+
+## Реализовано в alpha
+
+Основная логика находится в Sources/DropzoneCore и Sources/Dropzone. Следование разделено между FollowMotion/InertialFollower и ShelfController. NotchDropController реализован как NotchController; импорт и экспорт — в DragViews.swift, состояние — ShelfStore.swift. TemporaryContentStore пока отсутствует, так как file promises отложены. Debug/release сборки и 17 тестов прошли; ручная приёмка остаётся частичной, см. VALIDATION.md.

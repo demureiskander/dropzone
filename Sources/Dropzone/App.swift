@@ -1,0 +1,112 @@
+import AppKit
+import SwiftUI
+import Combine
+
+@main enum DropzoneApp {
+    @MainActor static func main() {
+        let app = NSApplication.shared
+        let delegate = AppDelegate()
+        app.delegate = delegate
+        app.setActivationPolicy(.accessory)
+        withExtendedLifetime(delegate) { app.run() }
+    }
+}
+
+@MainActor final class AppDelegate: NSObject, NSApplicationDelegate {
+    private let settings = Settings.shared
+    private var shelf: ShelfController!
+    private var activation: ActivationController!
+    private var statusItem: NSStatusItem!
+    private var settingsWindow: NSWindow?
+    private var hotKey: HotKey!
+    private var subscriptions: Set<AnyCancellable> = []
+    func applicationDidFinishLaunching(_ notification: Notification) {
+        settings.applyTheme()
+        let mainMenu = NSMenu()
+        let appMenuItem = NSMenuItem()
+        let appMenu = NSMenu()
+        let preferences = NSMenuItem(title: "Настройки…", action: #selector(showSettings), keyEquivalent: ",")
+        preferences.target = self; appMenu.addItem(preferences)
+        appMenu.addItem(.separator())
+        let quitItem = NSMenuItem(title: "Завершить Dropzone", action: #selector(quit), keyEquivalent: "q")
+        quitItem.target = self; appMenu.addItem(quitItem)
+        appMenuItem.submenu = appMenu; mainMenu.addItem(appMenuItem); NSApp.mainMenu = mainMenu
+        shelf = ShelfController(settings: settings)
+        shelf.openSettings = { [weak self] in self?.showSettings() }
+        activation = ActivationController(shelf: shelf, settings: settings)
+        hotKey = HotKey(); hotKey.action = { [weak self] in self?.shelf.toggle() }
+        hotKey.register(settings: settings)
+        Publishers.CombineLatest3(settings.$shortcutKey, settings.$shortcutModifiers, settings.$shortcutEnabled)
+            .dropFirst().debounce(for: .milliseconds(120), scheduler: RunLoop.main)
+            .sink { [weak self] _ in guard let self else { return }; self.hotKey.register(settings: self.settings) }.store(in: &subscriptions)
+        statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        if let button = statusItem.button {
+            let view = StatusDropView(frame: button.bounds)
+            view.autoresizingMask = [.width, .height]
+            view.onClick = { [weak self] event in
+                if event.type == .rightMouseUp { self?.showStatusMenu() } else { self?.shelf.toggle() }
+            }
+            view.onDrop = { [weak self] urls in self?.shelf.store.add(urls); self?.shelf.show() }
+            button.addSubview(view)
+            button.toolTip = "Dropzone — нажмите или перетащите файлы"
+        }
+        NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
+        NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(screensChanged), name: NSWorkspace.didWakeNotification, object: nil)
+        if !UserDefaults.standard.bool(forKey: "hasLaunched") {
+            UserDefaults.standard.set(true, forKey: "hasLaunched"); showSettings()
+        }
+        if CommandLine.arguments.contains("--show-shelf") { shelf.show(activate: true) }
+    }
+    func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { shelf.show(activate: true); return true }
+    func application(_ sender: NSApplication, openFiles filenames: [String]) {
+        guard shelf != nil else { sender.reply(toOpenOrPrint: .failure); return }
+        shelf.store.add(filenames.map { URL(fileURLWithPath: $0) }); shelf.show()
+        sender.reply(toOpenOrPrint: .success)
+    }
+    @objc private func screensChanged() { activation.screensChanged() }
+    @objc func showSettings() {
+        if settingsWindow == nil {
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 740, height: 530), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
+            window.title = "Dropzone — настройки"; window.titlebarAppearsTransparent = true
+            window.contentView = NSHostingView(rootView: SettingsView(settings: settings, showShelf: { [weak self] in self?.shelf.show(activate: true) }))
+            window.isReleasedWhenClosed = false; window.center(); settingsWindow = window
+        }
+        settingsWindow?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+    }
+    private func showStatusMenu() {
+        let menu = NSMenu()
+        let entries: [(String, Selector)] = [("Показать / скрыть полку", #selector(toggleShelf)), ("Очистить полку", #selector(clearShelf)), ("Настройки…", #selector(showSettings)), ("Завершить Dropzone", #selector(quit))]
+        for (title, action) in entries { let item = NSMenuItem(title: title, action: action, keyEquivalent: ""); item.target = self; menu.addItem(item) }
+        statusItem.menu = menu; statusItem.button?.performClick(nil); statusItem.menu = nil
+    }
+    @objc private func toggleShelf() { shelf.toggle() }
+    @objc private func clearShelf() { shelf.store.clear() }
+    @objc private func quit() { NSApp.terminate(nil) }
+}
+
+@MainActor final class StatusDropView: NSView {
+    var onDrop: (([URL]) -> Void)?
+    var onClick: ((NSEvent) -> Void)?
+    private var highlighted = false { didSet { needsDisplay = true } }
+    override init(frame frameRect: NSRect) {
+        super.init(frame: frameRect); registerForDraggedTypes([.fileURL])
+        setAccessibilityElement(true); setAccessibilityRole(.button); setAccessibilityLabel("Dropzone")
+    }
+    required init?(coder: NSCoder) { fatalError("init(coder:) unavailable") }
+    override func draw(_ dirtyRect: NSRect) {
+        if highlighted { NSColor.controlAccentColor.withAlphaComponent(0.3).setFill(); NSBezierPath(roundedRect: bounds, xRadius: 5, yRadius: 5).fill() }
+        let image = NSImage(systemSymbolName: "tray.and.arrow.down.fill", accessibilityDescription: "Dropzone")
+        image?.isTemplate = true
+        image?.draw(in: NSRect(x: (bounds.width - 17) / 2, y: (bounds.height - 17) / 2, width: 17, height: 17))
+    }
+    override func mouseUp(with event: NSEvent) { onClick?(event) }
+    override func rightMouseUp(with event: NSEvent) { onClick?(event) }
+    override func draggingEntered(_ sender: NSDraggingInfo) -> NSDragOperation { highlighted = FileDrag.accepts(sender); return highlighted ? .copy : [] }
+    override func draggingUpdated(_ sender: NSDraggingInfo) -> NSDragOperation { FileDrag.accepts(sender) ? .copy : [] }
+    override func draggingExited(_ sender: NSDraggingInfo?) { highlighted = false }
+    override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
+        highlighted = false; guard FileDrag.accepts(sender) else { return false }
+        onDrop?(FileDrag.urls(sender.draggingPasteboard)); return true
+    }
+}

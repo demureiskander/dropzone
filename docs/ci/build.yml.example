@@ -1,0 +1,22 @@
+name: Build and test
+on:
+  push:
+    branches: [main]
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  macos:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - name: Test core behavior
+        run: swift test
+      - name: Build application
+        run: scripts/build.sh release
+      - name: Package unsigned alpha
+        run: ditto -c -k --sequesterRsrc --keepParent build/Dropzone.app build/Dropzone-macOS.zip
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Dropzone-macOS-alpha
+          path: build/Dropzone-macOS.zip
