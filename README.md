@@ -2,7 +2,7 @@
 
 A free, native macOS file shelf. Collect files, switch apps, and drag them out when you need them. No accounts, cloud uploads, analytics, or artificial delays.
 
-**Status: 0.1.0 alpha.** Native Swift + AppKit + SwiftUI application with an initial Russian interface. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
+**Status: 0.1.0 alpha.** Native Swift + AppKit + SwiftUI application with English as the default language and Russian available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
 
 ## Build and run
 

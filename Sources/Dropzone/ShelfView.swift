@@ -20,7 +20,7 @@ struct ShelfView: View {
             if let error = store.error {
                 HStack(alignment: .top) {
                     Image(systemName: "exclamationmark.circle").foregroundStyle(.orange)
-                    Text(error).font(.caption).lineLimit(3)
+                    Text(L(error)).font(.caption).lineLimit(3)
                     Button { store.error = nil } label: { Image(systemName: "xmark") }.buttonStyle(.plain)
                 }.padding(10).background(.orange.opacity(0.09)).padding(10)
             }
@@ -34,7 +34,7 @@ struct ShelfView: View {
     }
     private var header: some View {
         HStack(spacing: 8) {
-            roundButton(store.expanded ? "chevron.left" : "xmark", label: store.expanded ? "Свернуть" : "Закрыть и очистить полку") {
+            roundButton(store.expanded ? "chevron.left" : "xmark", label: store.expanded ? L("Свернуть") : L("Закрыть и очистить полку")) {
                 if store.expanded { controller.setExpanded(false) } else { controller.closeShelf() }
             }
             if store.expanded {
@@ -45,12 +45,12 @@ struct ShelfView: View {
             }
             Spacer(minLength: 0)
             if store.expanded {
-                roundButton(store.list ? "square.grid.2x2" : "list.bullet", label: store.list ? "Показать сетку" : "Показать список") { store.list.toggle() }
+                roundButton(store.list ? "square.grid.2x2" : "list.bullet", label: store.list ? L("Показать сетку") : L("Показать список")) { store.list.toggle() }
             }
-            roundButton(settings.follow ? "cursorarrow.motionlines" : "cursorarrow", label: settings.follow ? "Следование включено — выключить" : "Следование выключено — включить", active: settings.follow) {
+            roundButton(settings.follow ? "cursorarrow.motionlines" : "cursorarrow", label: settings.follow ? L("Следование включено — выключить") : L("Следование выключено — включить"), active: settings.follow) {
                 settings.follow.toggle()
             }
-            roundButton("ellipsis", label: "Действия с файлами") { controller.showMenu() }
+            roundButton("ellipsis", label: L("Действия с файлами")) { controller.showMenu() }
                 .background(MenuAnchor { controller.menuAnchor = $0 })
         }
         .padding(.horizontal, 14).padding(.top, 17).padding(.bottom, 8)
@@ -73,8 +73,8 @@ struct ShelfView: View {
                 }
                 .frame(maxWidth: .infinity, minHeight: 112)
                 .overlay(interaction(nil))
-                .accessibilityLabel("Перетащить все файлы")
-                .accessibilityAction(named: Text("Открыть список файлов")) { controller.setExpanded(true) }
+                .accessibilityLabel(L("Перетащить все файлы"))
+                .accessibilityAction(named: Text(L("Открыть список файлов"))) { controller.setExpanded(true) }
                 Button { controller.setExpanded(true) } label: {
                     HStack(spacing: 5) {
                         Text(store.title).lineLimit(1).truncationMode(.middle)
@@ -85,9 +85,9 @@ struct ShelfView: View {
             } else {
                 Image(systemName: store.hovering ? "arrow.down.doc.fill" : "tray.and.arrow.down")
                     .font(.system(size: 36, weight: .light)).foregroundStyle(store.hovering ? Color.accentColor : .secondary)
-                Text(store.hovering ? "Отпустите файлы" : "Перетащите сюда")
+                Text(store.hovering ? L("Отпустите файлы") : L("Перетащите сюда"))
                     .font(.system(size: 13, weight: .medium)).foregroundStyle(.secondary)
-                Text("Встряхните файл · положите · заберите")
+                Text(L("Встряхните файл · положите · заберите"))
                     .font(.system(size: 9)).foregroundStyle(.tertiary)
             }
             Spacer(minLength: 10)
@@ -102,7 +102,7 @@ struct ShelfView: View {
                             FileThumbnail(url: item.url, size: 28)
                             Text(item.name).font(.system(size: 13)).lineLimit(1).truncationMode(.middle)
                             Spacer()
-                            Text(item.available ? (item.isDirectory ? "Папка" : ByteCountFormatter.string(fromByteCount: item.byteSize, countStyle: .file)) : "Недоступен")
+                            Text(item.available ? (item.isDirectory ? L("Папка") : ByteCountFormatter.string(fromByteCount: item.byteSize, countStyle: .file)) : L("Недоступен"))
                                 .font(.system(size: 11)).foregroundStyle(item.available ? Color.secondary : .orange)
                         }.padding(9).background(selectionColor(item), in: RoundedRectangle(cornerRadius: 9))
                             .overlay(interaction(item.id)).accessibilityElement(children: .combine)
@@ -115,7 +115,7 @@ struct ShelfView: View {
                         VStack(spacing: 8) {
                             FileThumbnail(url: item.url, size: 65).opacity(item.available ? 1 : 0.35)
                             Text(item.name).font(.system(size: 12)).lineLimit(2).truncationMode(.middle).multilineTextAlignment(.center)
-                            if !item.available { Text("Недоступен").font(.caption2).foregroundStyle(.orange) }
+                            if !item.available { Text(L("Недоступен")).font(.caption2).foregroundStyle(.orange) }
                         }.frame(maxWidth: .infinity, minHeight: 118).padding(8)
                             .background(selectionColor(item), in: RoundedRectangle(cornerRadius: 12))
                             .overlay(interaction(item.id)).accessibilityElement(children: .combine)

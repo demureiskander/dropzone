@@ -22,13 +22,14 @@ import Combine
     var chosen: [FileReference] { selection.isEmpty ? items : items.filter { selection.contains($0.id) } }
     var countLabel: String {
         let n = items.count
+        if Settings.shared.language != "ru" { return "\(n) " + (n == 1 ? "file" : "files") }
         let word = (11...14).contains(n % 100) ? "файлов" : n % 10 == 1 ? "файл" : (2...4).contains(n % 10) ? "файла" : "файлов"
         return "\(n) \(word)"
     }
     var title: String { items.count == 1 ? items[0].name : countLabel }
     var sizeLabel: String {
         let bytes = items.filter { !$0.isDirectory }.reduce(Int64(0)) { $0 + $1.byteSize }
-        return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file) + (items.contains { $0.isDirectory } ? " · без содержимого папок" : "")
+        return ByteCountFormatter.string(fromByteCount: bytes, countStyle: .file) + (items.contains { $0.isDirectory } ? L(" · без содержимого папок") : "")
     }
 
     func add(_ urls: [URL]) {

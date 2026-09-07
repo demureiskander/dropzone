@@ -42,7 +42,7 @@ import DropzoneCore
         panel.collectionBehavior = [.canJoinAllSpaces, .fullScreenAuxiliary]
         panel.isOpaque = false; panel.backgroundColor = .clear; panel.hasShadow = true
         panel.isReleasedWhenClosed = false; panel.acceptsMouseMovedEvents = true
-        panel.title = "Dropzone — полка"
+        panel.title = L("Dropzone — полка")
         hosting = DropHostingView(rootView: ShelfView(store: store, settings: settings, controller: self))
         hosting.onDrop = { [weak self] urls in self?.store.add(urls) }
         hosting.onHover = { [weak self] value in self?.store.hovering = value }
@@ -75,11 +75,11 @@ import DropzoneCore
             confirmingClose = true
             stopMotion()
             let alert = NSAlert()
-            alert.messageText = "Закрыть полку и очистить содержимое?"
-            alert.informativeText = "На полке элементов: \(store.closeItemCount). Оригиналы файлов останутся на месте."
+            alert.messageText = L("Закрыть полку и очистить содержимое?")
+            alert.informativeText = (L("На полке элементов: ") + "\(store.closeItemCount)" + L(". Оригиналы файлов останутся на месте."))
             alert.alertStyle = .warning
-            alert.addButton(withTitle: "Отмена")
-            alert.addButton(withTitle: "Закрыть и очистить")
+            alert.addButton(withTitle: L("Отмена"))
+            alert.addButton(withTitle: L("Закрыть и очистить"))
             NSApp.activate(ignoringOtherApps: true)
             let response = alert.runModal()
             confirmingClose = false
@@ -128,10 +128,10 @@ import DropzoneCore
         let next = inertia.advance(from: panel.frame.origin, to: target, deltaTime: dt, mobility: mobility,
             reduceMotion: NSWorkspace.shared.accessibilityDisplayShouldReduceMotion)
         // Never sweep a moving panel underneath the pointer.
-        if NSRect(origin: next, size: panel.frame.size).insetBy(dx: -24, dy: -24).contains(pointer) { stopMotion(); return }
+        if NSRect(origin: next, size: panel.frame.size).insetBy(dx: -10, dy: -10).contains(pointer) { stopMotion(); return }
         let clamped = FollowMotion.clamp(next, size: panel.frame.size, screen: screenAt(pointer).visibleFrame)
         panel.setFrameOrigin(clamped)
-        if paused && inertia.speed < 0.6 && panel.frame.insetBy(dx: -88, dy: -88).contains(pointer) { stopMotion() }
+        if paused && inertia.speed < 0.6 && panel.frame.insetBy(dx: -44, dy: -44).contains(pointer) { stopMotion() }
         if hypot(next.x - target.x, next.y - target.y) < 0.5 && inertia.speed < 1 { panel.setFrameOrigin(target); stopMotion() }
     }
     private func stopMotion() { timer?.invalidate(); timer = nil; inertia.reset() }
@@ -144,16 +144,16 @@ import DropzoneCore
             item.target = self; item.isEnabled = enabled; menu.addItem(item)
         }
         menu.autoenablesItems = false
-        action("Открыть", #selector(openFiles), hasItems)
-        action("Показать в Finder", #selector(reveal), hasItems)
-        action("Быстрый просмотр", #selector(quickLook), hasItems)
+        action(L("Открыть"), #selector(openFiles), hasItems)
+        action(L("Показать в Finder"), #selector(reveal), hasItems)
+        action(L("Быстрый просмотр"), #selector(quickLook), hasItems)
         menu.addItem(.separator())
-        action("Убрать с полки", #selector(removeSelected), hasItems)
-        action("Очистить полку", #selector(clear), hasItems)
+        action(L("Убрать с полки"), #selector(removeSelected), hasItems)
+        action(L("Очистить полку"), #selector(clear), hasItems)
         menu.addItem(.separator())
-        action("Следовать за курсором", #selector(toggleFollow))
+        action(L("Следовать за курсором"), #selector(toggleFollow))
         menu.items.last?.state = settings.follow ? .on : .off
-        action("Настройки…", #selector(settingsAction))
+        action(L("Настройки…"), #selector(settingsAction))
         if let event { NSMenu.popUpContextMenu(menu, with: event, for: hosting) }
         else if let anchor = menuAnchor {
             let point = NSPoint(x: anchor.bounds.minX, y: anchor.isFlipped ? anchor.bounds.maxY + 5 : anchor.bounds.minY - 5)

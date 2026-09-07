@@ -41,9 +41,9 @@ final class MotionTests: XCTestCase {
         XCTAssertGreaterThan(point.x, 950, "A stationary target should be almost reached in 300 ms, as before the slowdown")
     }
     func testApproachProgressivelyReducesMobility() {
-        XCTAssertEqual(InertialFollower.mobility(clearance: 20), 0)
-        XCTAssertEqual(InertialFollower.mobility(clearance: 150), 1)
-        XCTAssertGreaterThan(InertialFollower.mobility(clearance: 120), InertialFollower.mobility(clearance: 80))
+        XCTAssertEqual(InertialFollower.mobility(clearance: 16), 0)
+        XCTAssertEqual(InertialFollower.mobility(clearance: 80), 1)
+        XCTAssertGreaterThan(InertialFollower.mobility(clearance: 70), InertialFollower.mobility(clearance: 40))
         XCTAssertEqual(InertialFollower.clearance(pointer: CGPoint(x: 150, y: 50), frame: CGRect(x: 0, y: 0, width: 100, height: 100)), 50)
     }
     func testInertiaEventuallySettles() {
@@ -85,10 +85,16 @@ final class MotionTests: XCTestCase {
     func testFollowFreezesBeforePointerReachesPanel() {
         var motion = FollowMotion()
         let frame = CGRect(x: 200, y: 200, width: 252, height: 254)
-        XCTAssertTrue(motion.isPaused(pointer: CGPoint(x: 180, y: 300), frame: frame, time: 1, interacting: false))
-        XCTAssertTrue(motion.isPaused(pointer: CGPoint(x: 120, y: 300), frame: frame, time: 2, interacting: false))
+        XCTAssertTrue(motion.isPaused(pointer: CGPoint(x: 185, y: 300), frame: frame, time: 1, interacting: false))
+        XCTAssertTrue(motion.isPaused(pointer: CGPoint(x: 160, y: 300), frame: frame, time: 2, interacting: false))
         XCTAssertTrue(motion.isPaused(pointer: CGPoint(x: 50, y: 300), frame: frame, time: 2.1, interacting: false))
         XCTAssertFalse(motion.isPaused(pointer: CGPoint(x: 50, y: 300), frame: frame, time: 2.5, interacting: false))
+    }
+    func testPointerCanApproachCloserBeforePausing() {
+        var motion = FollowMotion()
+        let frame = CGRect(x: 200, y: 200, width: 252, height: 254)
+        XCTAssertFalse(motion.isPaused(pointer: CGPoint(x: 170, y: 300), frame: frame, time: 1, interacting: false))
+        XCTAssertTrue(motion.isPaused(pointer: CGPoint(x: 185, y: 300), frame: frame, time: 2, interacting: false))
     }
     func testMenuInteractionPausesFollowAtAnyDistance() {
         var motion = FollowMotion()

@@ -27,10 +27,10 @@ import Carbon
         let mainMenu = NSMenu()
         let appMenuItem = NSMenuItem()
         let appMenu = NSMenu()
-        let preferences = NSMenuItem(title: "Настройки…", action: #selector(showSettings), keyEquivalent: ",")
+        let preferences = NSMenuItem(title: L("Настройки…"), action: #selector(showSettings), keyEquivalent: ",")
         preferences.target = self; appMenu.addItem(preferences)
         appMenu.addItem(.separator())
-        let quitItem = NSMenuItem(title: "Завершить Dropzone", action: #selector(quit), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: L("Завершить Dropzone"), action: #selector(quit), keyEquivalent: "q")
         quitItem.target = self; appMenu.addItem(quitItem)
         appMenuItem.submenu = appMenu; mainMenu.addItem(appMenuItem); NSApp.mainMenu = mainMenu
         // Use the physical comma key, so Russian Б and other layouts work too.
@@ -45,6 +45,14 @@ import Carbon
         }
         shelf = ShelfController(settings: settings)
         shelf.openSettings = { [weak self] in self?.showSettings() }
+        settings.$language.dropFirst().receive(on: RunLoop.main).sink { [weak self] _ in
+            guard let self else { return }
+            preferences.title = L("Настройки…")
+            quitItem.title = L("Завершить Dropzone")
+            self.settingsWindow?.title = L("Dropzone — настройки")
+            self.shelf.panel.title = L("Dropzone — полка")
+            self.statusItem.button?.toolTip = L("Dropzone — нажмите или перетащите файлы")
+        }.store(in: &subscriptions)
         activation = ActivationController(shelf: shelf, settings: settings)
         hotKey = HotKey(); hotKey.action = { [weak self] in self?.shelf.toggle() }
         hotKey.register(settings: settings)
@@ -60,7 +68,7 @@ import Carbon
             }
             view.onDrop = { [weak self] urls in self?.shelf.store.add(urls); self?.shelf.show() }
             button.addSubview(view)
-            button.toolTip = "Dropzone — нажмите или перетащите файлы"
+            button.toolTip = L("Dropzone — нажмите или перетащите файлы")
         }
         NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(screensChanged), name: NSWorkspace.didWakeNotification, object: nil)
@@ -80,7 +88,7 @@ import Carbon
     @objc func showSettings() {
         if settingsWindow == nil {
             let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 740, height: 530), styleMask: [.titled, .closable, .miniaturizable], backing: .buffered, defer: false)
-            window.title = "Dropzone — настройки"; window.titlebarAppearsTransparent = true
+            window.title = L("Dropzone — настройки"); window.titlebarAppearsTransparent = true
             window.contentView = NSHostingView(rootView: SettingsView(settings: settings, showShelf: { [weak self] in self?.shelf.show(activate: true) }))
             window.isReleasedWhenClosed = false; window.center(); settingsWindow = window
         }
@@ -88,7 +96,7 @@ import Carbon
     }
     private func showStatusMenu() {
         let menu = NSMenu()
-        let entries: [(String, Selector)] = [("Показать / скрыть полку", #selector(toggleShelf)), ("Очистить полку", #selector(clearShelf)), ("Настройки…", #selector(showSettings)), ("Завершить Dropzone", #selector(quit))]
+        let entries: [(String, Selector)] = [(L("Показать / скрыть полку"), #selector(toggleShelf)), (L("Очистить полку"), #selector(clearShelf)), (L("Настройки…"), #selector(showSettings)), (L("Завершить Dropzone"), #selector(quit))]
         for (title, action) in entries { let item = NSMenuItem(title: title, action: action, keyEquivalent: ""); item.target = self; menu.addItem(item) }
         statusItem.menu = menu; statusItem.button?.performClick(nil); statusItem.menu = nil
     }

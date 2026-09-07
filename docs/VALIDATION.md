@@ -46,3 +46,7 @@ codesign --verify --deep --strict build/Dropzone.app
 plutil -lint Resources/Info.plist
 git diff --check
 ```
+
+## Language and closer pause revision
+
+21 XCTest cases pass, including no pause at 30 pt and pause at 15 pt. Release build and signature verification passed. Computer Use confirmed English on launch, the General → Language selector, and immediate Russian shelf/settings text after choosing Русский. Further UI actions encountered repeated external-state changes and ScreenCaptureKit failures; the last observed language was Russian. System-provided symbols, file icons and OS error descriptions may follow the macOS language.

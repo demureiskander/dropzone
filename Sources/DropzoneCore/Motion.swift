@@ -47,7 +47,7 @@ public struct InertialFollower {
     }
 
     public static func mobility(clearance: CGFloat) -> CGFloat {
-        let t = min(max((clearance - 40) / 110, 0), 1)
+        let t = min(max((clearance - 16) / 64, 0), 1)
         return t * t * (3 - 2 * t)
     }
 
@@ -89,12 +89,12 @@ public struct FollowMotion {
     }
 
     public mutating func isPaused(pointer: CGPoint, frame: CGRect, time: TimeInterval, interacting: Bool) -> Bool {
-        if interacting || frame.insetBy(dx: -48, dy: -48).contains(pointer) {
+        if interacting || frame.insetBy(dx: -20, dy: -20).contains(pointer) {
             paused = true
             resumeAt = time + 0.3
             return true
         }
-        if paused && frame.insetBy(dx: -88, dy: -88).contains(pointer) {
+        if paused && frame.insetBy(dx: -44, dy: -44).contains(pointer) {
             resumeAt = time + 0.3
             return true
         }
