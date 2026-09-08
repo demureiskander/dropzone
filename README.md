@@ -19,13 +19,13 @@ The `trust` line is for Homebrew 6 and newer; skip it on older versions. The tap
 
 ### Direct download
 
-Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.1/Dropzone-0.1.1-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.1/Dropzone-0.1.1-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.1/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.1).
+Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.2/Dropzone-0.1.2-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.2/Dropzone-0.1.2-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.2/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.2).
 
 Requires Apple Silicon and macOS 13+. This alpha is ad-hoc signed and not notarized: if macOS blocks first launch, review it in **System Settings → Privacy & Security**. The installer does not change security settings.
 
 Launch Dropzone, pick up a file, shake the pointer, and drop the file onto the shelf. Open settings with **⌘,** while Dropzone has focus.
 
-**Status: 0.1.1 alpha.** Native Swift + AppKit + SwiftUI application with English as the default language and Russian available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
+**Status: 0.1.2 alpha.** Native Swift + AppKit + SwiftUI application with English as the default language and Russian available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
 
 ## Build and run
 
@@ -40,6 +40,8 @@ open build/Dropzone.app
 Open `Package.swift` in Xcode to browse, build, and debug the targets. The build script wraps the executable in a normal `.app` bundle and applies an ad-hoc signature for local development. Run the bundle for menu bar behavior and Launch at Login. Distribution builds are not yet Developer ID signed or notarized.
 
 ## Use
+
+Dropzone appears in both the menu bar and Dock by default. Change either independently in **Settings → General**. Changes apply immediately and persist. If both icons are hidden, reopen Dropzone from Applications to reach Settings.
 
 - Click the menu bar tray icon, press **⌥⇧Space**, or shake while dragging files from Finder.
 - On a MacBook with a camera notch, drag towards it for a glow; an outline marks the active drop zone.

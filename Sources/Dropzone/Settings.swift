@@ -4,6 +4,8 @@ import Carbon
 
 @MainActor final class Settings: ObservableObject {
     static let shared = Settings()
+    @Published var showMenuBar: Bool { didSet { save(showMenuBar, "showMenuBar") } }
+    @Published var showDock: Bool { didSet { save(showDock, "showDock") } }
     @Published var language: String { didSet { save(language, "language") } }
     @Published var follow: Bool { didSet { save(follow, "follow") } }
     @Published var shake: Bool { didSet { save(shake, "shake") } }
@@ -21,8 +23,10 @@ import Carbon
     private func save(_ value: Any, _ key: String) { defaults.set(value, forKey: key) }
     private init() {
         defaults.register(defaults: ["follow": true, "shake": true, "notch": true, "keepOpen": false,
-            "language": "en", "confirmClose": true, "closeThreshold": 5, "sensitivity": 1.0, "theme": "system", "shortcutEnabled": true,
+            "showMenuBar": true, "showDock": true, "language": "en", "confirmClose": true, "closeThreshold": 5, "sensitivity": 1.0, "theme": "system", "shortcutEnabled": true,
             "shortcutKey": Int(kVK_Space), "shortcutModifiers": Int(optionKey | shiftKey)])
+        showMenuBar = defaults.bool(forKey: "showMenuBar")
+        showDock = defaults.bool(forKey: "showDock")
         language = defaults.string(forKey: "language") == "ru" ? "ru" : "en"
         confirmClose = defaults.bool(forKey: "confirmClose")
         closeThreshold = min(max(defaults.integer(forKey: "closeThreshold"), 1), 1000)
@@ -31,7 +35,7 @@ import Carbon
         let savedSensitivity = defaults.double(forKey: "sensitivity")
         sensitivity = savedSensitivity == 0.7 ? 0.35 : savedSensitivity
         if savedSensitivity == 0.7 { defaults.set(0.35, forKey: "sensitivity") }
-         theme = defaults.string(forKey: "theme") ?? "system"
+        theme = defaults.string(forKey: "theme") ?? "system"
         shortcutKey = UInt32(defaults.integer(forKey: "shortcutKey"))
         shortcutModifiers = UInt32(defaults.integer(forKey: "shortcutModifiers"))
         shortcutEnabled = defaults.bool(forKey: "shortcutEnabled")

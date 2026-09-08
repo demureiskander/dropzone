@@ -8,7 +8,7 @@ import Carbon
         let app = NSApplication.shared
         let delegate = AppDelegate()
         app.delegate = delegate
-        app.setActivationPolicy(.accessory)
+        app.setActivationPolicy(Settings.shared.showDock ? .regular : .accessory)
         withExtendedLifetime(delegate) { app.run() }
     }
 }
@@ -70,15 +70,25 @@ import Carbon
             button.addSubview(view)
             button.toolTip = L("Dropzone — нажмите или перетащите файлы")
         }
+        settings.$showMenuBar.sink { [weak self] visible in
+            self?.statusItem.isVisible = visible
+        }.store(in: &subscriptions)
+        settings.$showDock.dropFirst().receive(on: RunLoop.main).sink { visible in
+            NSApp.setActivationPolicy(visible ? .regular : .accessory)
+        }.store(in: &subscriptions)
         NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(screensChanged), name: NSWorkspace.didWakeNotification, object: nil)
-        if !UserDefaults.standard.bool(forKey: "hasLaunched") {
+        if !UserDefaults.standard.bool(forKey: "hasLaunched") || (!settings.showMenuBar && !settings.showDock) {
             UserDefaults.standard.set(true, forKey: "hasLaunched"); showSettings()
         }
         if CommandLine.arguments.contains("--show-shelf") { shelf.show(activate: true) }
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
-    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool { shelf.show(activate: true); return true }
+    func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
+        if !settings.showMenuBar && !settings.showDock { showSettings() }
+        else { shelf.show(activate: true) }
+        return true
+    }
     func application(_ sender: NSApplication, openFiles filenames: [String]) {
         guard shelf != nil else { sender.reply(toOpenOrPrint: .failure); return }
         shelf.store.add(filenames.map { URL(fileURLWithPath: $0) }); shelf.show()

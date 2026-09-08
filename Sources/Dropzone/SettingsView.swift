@@ -108,6 +108,11 @@ struct SettingsView: View {
                 Text(L("Применяется сразу.")).font(.caption).foregroundStyle(.secondary)
             }
             card {
+                Toggle(L("Показывать в строке меню"), isOn: $settings.showMenuBar).toggleStyle(.switch)
+                Toggle(L("Показывать в Dock"), isOn: $settings.showDock).toggleStyle(.switch)
+                Text(L("Если обе иконки скрыты, откройте Dropzone из папки «Программы», чтобы вернуться в настройки.")).font(.caption).foregroundStyle(.secondary)
+            }
+            card {
                 Picker(L("Оформление"), selection: $settings.theme) {
                     Text(L("Системное")).tag("system"); Text(L("Светлое")).tag("light"); Text(L("Тёмное")).tag("dark")
                 }

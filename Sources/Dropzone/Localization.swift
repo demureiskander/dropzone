@@ -10,6 +10,9 @@ import Foundation
 }
 
 private let englishStrings: [String: String] = [
+    "Показывать в строке меню": "Show in Menu Bar",
+    "Показывать в Dock": "Show in Dock",
+    "Если обе иконки скрыты, откройте Dropzone из папки «Программы», чтобы вернуться в настройки.": "If both icons are hidden, open Dropzone from Applications to return to Settings.",
     "Поддержать донатом": "Donate",
     "Репозиторий GitHub": "GitHub Repository",
     " · без содержимого папок": " · excluding folder contents",
