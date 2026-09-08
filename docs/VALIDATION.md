@@ -54,3 +54,12 @@ git diff --check
 ## Shake and visibility revision
 
 22 XCTest cases pass, including rejection of the old low-amplitude shake at 0.35 and acceptance of twice that amplitude. Release build, signature verification and diff whitespace checks passed. Visibility fades are implemented with a common-run-loop timer that is invalidated on reversal and completion; animation feel and rapid-toggle behavior still need hands-on verification.
+
+## Release and Homebrew — 0.1.0
+
+- Author-provided PNG converted to ICNS; installed bundle icon matches the source ICNS byte-for-byte.
+- Official Apache-2.0 LICENSE and NOTICE included in the bundle; installed LICENSE matches the repository.
+- DMG and ZIP published with SHA256SUMS in GitHub release v0.1.0 (alpha / prerelease).
+- Homebrew 6.0.22 successfully tapped this repository, trusted the single cask, downloaded the release with SHA-256 verification and installed `/Applications/Dropzone.app`. `brew list --cask --versions` reports 0.1.0.
+- Installed ad-hoc signature verification passed. Developer ID signing and Apple notarization remain unavailable; Intel is not included in this arm64 release.
+- Cask token is `demureiskander-dropzone` to avoid the existing commercial product's token.
