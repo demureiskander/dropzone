@@ -12,6 +12,13 @@ cask "demureiskander-dropzone" do
 
   app "Dropzone.app"
 
+  uninstall quit: "io.github.demureiskander.dropzone"
+
+  zap trash: [
+    "~/Library/Preferences/io.github.demureiskander.dropzone.plist",
+    "~/Library/Saved Application State/io.github.demureiskander.dropzone.savedState",
+  ]
+
   caveats <<~EOS
     This is an alpha build, ad-hoc signed and not notarized by Apple.
     It is independent of the commercial Dropzone by Aptonic.
