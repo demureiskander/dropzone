@@ -61,6 +61,10 @@ import Carbon
             .sink { [weak self] _ in guard let self else { return }; self.hotKey.register(settings: self.settings) }.store(in: &subscriptions)
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
         if let button = statusItem.button {
+            let image = NSImage(systemSymbolName: "tray.and.arrow.down.fill", accessibilityDescription: "Dropzone")
+            image?.isTemplate = true
+            image?.size = NSSize(width: 17, height: 17)
+            button.image = image
             let view = StatusDropView(frame: button.bounds)
             view.autoresizingMask = [.width, .height]
             view.onClick = { [weak self] event in
@@ -73,8 +77,8 @@ import Carbon
         settings.$showMenuBar.sink { [weak self] visible in
             self?.statusItem.isVisible = visible
         }.store(in: &subscriptions)
-        settings.$showDock.dropFirst().receive(on: RunLoop.main).sink { visible in
-            NSApp.setActivationPolicy(visible ? .regular : .accessory)
+        settings.$showDock.dropFirst().receive(on: DispatchQueue.main).sink { [weak self] visible in
+            self?.applyDockVisibility(visible)
         }.store(in: &subscriptions)
         NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(screensChanged), name: NSWorkspace.didWakeNotification, object: nil)
@@ -82,6 +86,14 @@ import Carbon
             UserDefaults.standard.set(true, forKey: "hasLaunched"); showSettings()
         }
         if CommandLine.arguments.contains("--show-shelf") { shelf.show(activate: true) }
+    }
+    private func applyDockVisibility(_ visible: Bool) {
+        // Synchronize both AppKit and the process presentation state. On macOS
+        // Tahoe, changing only AppKit's policy can leave the running Dock tile.
+        NSApp.setActivationPolicy(visible ? .regular : .accessory)
+        var process = ProcessSerialNumber(highLongOfPSN: 0, lowLongOfPSN: UInt32(kCurrentProcess))
+        let result = TransformProcessType(&process, visible ? ProcessApplicationTransformState(kProcessTransformToForegroundApplication) : ProcessApplicationTransformState(kProcessTransformToUIElementApplication))
+        if result != noErr { NSLog("Dropzone: process presentation update failed (%d)", result) }
     }
     func applicationShouldTerminateAfterLastWindowClosed(_ sender: NSApplication) -> Bool { false }
     func applicationShouldHandleReopen(_ sender: NSApplication, hasVisibleWindows flag: Bool) -> Bool {
@@ -126,9 +138,7 @@ import Carbon
     required init?(coder: NSCoder) { fatalError("init(coder:) unavailable") }
     override func draw(_ dirtyRect: NSRect) {
         if highlighted { NSColor.controlAccentColor.withAlphaComponent(0.3).setFill(); NSBezierPath(roundedRect: bounds, xRadius: 5, yRadius: 5).fill() }
-        let image = NSImage(systemSymbolName: "tray.and.arrow.down.fill", accessibilityDescription: "Dropzone")
-        image?.isTemplate = true
-        image?.draw(in: NSRect(x: (bounds.width - 17) / 2, y: (bounds.height - 17) / 2, width: 17, height: 17))
+
     }
     override func mouseUp(with event: NSEvent) { onClick?(event) }
     override func rightMouseUp(with event: NSEvent) { onClick?(event) }

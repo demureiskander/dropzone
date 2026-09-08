@@ -67,3 +67,10 @@ git diff --check
 ## Range selection — 0.1.1
 
 25 XCTest cases pass: Shift anchor creation, inclusive ranges, reverse selection, range contraction, Command toggling and deleted/cleared anchor fallback. Release build and signature validation passed. Grid and list share the same native click handler.
+
+## Menu bar and Dock fixes — 0.1.3
+
+- The status item uses an `NSStatusBarButton` template image; the transparent drag target no longer draws a fixed-color symbol over it.
+- Dock visibility updates both `NSApplication.ActivationPolicy` and the process presentation type on the main queue.
+- With Show in Dock disabled, both the installed 0.1.2 process and the test 0.1.3 process reported activation policy `accessory` (`rawValue == 1`). Two copies were running during diagnosis; release testing must leave only the installed copy active.
+- Debug tests (25), release build, ad-hoc signature validation, cask syntax and DMG checksum passed.
