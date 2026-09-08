@@ -81,3 +81,10 @@ git diff --check
 - A successful native dragging session removes the exact set of accessible exported references. A cancelled or rejected session reports an empty operation and keeps the shelf intact.
 - Mouse-down fixes the shelf synchronously. Fast approach prediction stops follow motion before the pointer reaches the shelf, reducing the chance that the target moves away during a rapid grab.
 - Cross-application drag-out still requires hands-on verification because unit tests cannot establish destination behavior in Finder and every third-party application.
+
+## First-run onboarding — 0.1.5
+
+- Debug tests (28), release build, ad-hoc signature validation and whitespace checks pass.
+- The onboarding is presented only when neither the new completion flag nor the legacy launch flag is set. Completing it records both flags and opens the shelf.
+- The initial language follows the first macOS preferred language only when no explicit app language exists: Russian for `ru-*`, English otherwise. The language menu updates onboarding immediately.
+- Exact layout and first-run persistence should still be checked manually from a clean preferences domain.

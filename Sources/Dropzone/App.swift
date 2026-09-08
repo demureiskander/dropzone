@@ -19,6 +19,7 @@ import Carbon
     private var activation: ActivationController!
     private var statusItem: NSStatusItem!
     private var settingsWindow: NSWindow?
+    private var onboardingWindow: NSWindow?
     private var hotKey: HotKey!
     private var settingsKeyMonitor: Any?
     private var subscriptions: Set<AnyCancellable> = []
@@ -82,9 +83,11 @@ import Carbon
         }.store(in: &subscriptions)
         NotificationCenter.default.addObserver(self, selector: #selector(screensChanged), name: NSApplication.didChangeScreenParametersNotification, object: nil)
         NSWorkspace.shared.notificationCenter.addObserver(self, selector: #selector(screensChanged), name: NSWorkspace.didWakeNotification, object: nil)
-        if !UserDefaults.standard.bool(forKey: "hasLaunched") || (!settings.showMenuBar && !settings.showDock) {
-            UserDefaults.standard.set(true, forKey: "hasLaunched"); showSettings()
-        }
+        let defaults = UserDefaults.standard
+        let completedOnboarding = defaults.object(forKey: "hasCompletedOnboarding") as? Bool
+            ?? defaults.bool(forKey: "hasLaunched")
+        if !completedOnboarding { showOnboarding() }
+        else if !settings.showMenuBar && !settings.showDock { showSettings() }
         if CommandLine.arguments.contains("--show-shelf") { shelf.show(activate: true) }
     }
     private func applyDockVisibility(_ visible: Bool) {
@@ -115,6 +118,20 @@ import Carbon
             window.isReleasedWhenClosed = false; window.center(); settingsWindow = window
         }
         settingsWindow?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
+    }
+    private func showOnboarding() {
+        if onboardingWindow == nil {
+            let window = NSWindow(contentRect: NSRect(x: 0, y: 0, width: 720, height: 540), styleMask: [.titled, .closable], backing: .buffered, defer: false)
+            window.title = "Dropzone"; window.titlebarAppearsTransparent = true
+            window.contentView = NSHostingView(rootView: OnboardingView(settings: settings) { [weak self, weak window] in
+                UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                UserDefaults.standard.set(true, forKey: "hasLaunched")
+                window?.close()
+                self?.shelf.show(activate: true)
+            })
+            window.isReleasedWhenClosed = false; window.center(); onboardingWindow = window
+        }
+        onboardingWindow?.makeKeyAndOrderFront(nil); NSApp.activate(ignoringOtherApps: true)
     }
     private func showStatusMenu() {
         let menu = NSMenu()
