@@ -14,6 +14,7 @@ import Combine
     var exporting = false
     var menuOpen = false
     private var generation = 0
+    private var rangeSelection = RangeSelection()
     private var importingURLs: [URL] = []
     var closeItemCount: Int {
         Set((items.map(\.url) + importingURLs + importQueue).map { $0.standardizedFileURL }).count
@@ -72,15 +73,14 @@ import Combine
     }
     func clear() {
         generation += 1; importingURLs = []; importQueue = []; loading = false
-        items = []; selection = []; error = nil
+        items = []; selection = []; error = nil; rangeSelection.reset()
     }
     func removeSelection() {
         let ids = Set(chosen.map(\.id))
         items.removeAll { ids.contains($0.id) }; selection.subtract(ids)
     }
-    func select(_ id: String, additive: Bool) {
-        if additive { if !selection.insert(id).inserted { selection.remove(id) } }
-        else { selection = [id] }
+    func select(_ id: String, additive: Bool, range: Bool = false) {
+        selection = rangeSelection.select(id, orderedIDs: items.map(\.id), selected: selection, additive: additive, range: range)
     }
     func selectAll() { selection = Set(items.map(\.id)) }
     func validURLs() -> [URL] {

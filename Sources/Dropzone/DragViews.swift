@@ -86,6 +86,7 @@ struct FileInteraction: NSViewRepresentable {
         start = event
         if let id = itemID {
             if event.modifierFlags.contains(.command) { store?.select(id, additive: true) }
+            else if event.modifierFlags.contains(.shift) { store?.select(id, additive: false, range: true) }
             else if store?.selection.contains(id) != true { store?.select(id, additive: false) }
         }
         if event.clickCount == 2 { onDoubleClick?() }

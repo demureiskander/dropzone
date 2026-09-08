@@ -63,3 +63,7 @@ git diff --check
 - Homebrew 6.0.22 successfully tapped this repository, trusted the single cask, downloaded the release with SHA-256 verification and installed `/Applications/Dropzone.app`. `brew list --cask --versions` reports 0.1.0.
 - Installed ad-hoc signature verification passed. Developer ID signing and Apple notarization remain unavailable; Intel is not included in this arm64 release.
 - Cask token is `demureiskander-dropzone` to avoid the existing commercial product's token.
+
+## Range selection — 0.1.1
+
+25 XCTest cases pass: Shift anchor creation, inclusive ranges, reverse selection, range contraction, Command toggling and deleted/cleared anchor fallback. Release build and signature validation passed. Grid and list share the same native click handler.

@@ -231,7 +231,7 @@ import DropzoneCore
             let current = store.items.firstIndex { store.selection.contains($0.id) } ?? -1
             let direction = (event.keyCode == 123 || event.keyCode == 126) ? -1 : 1
             let index = min(max(current + direction, 0), store.items.count - 1)
-            store.selection = [store.items[index].id]; return true
+            store.select(store.items[index].id, additive: false); return true
         }
         return false
     }

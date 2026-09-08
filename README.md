@@ -19,13 +19,13 @@ The `trust` line is for Homebrew 6 and newer; skip it on older versions. The tap
 
 ### Direct download
 
-Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.0/Dropzone-0.1.0-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.0/Dropzone-0.1.0-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.0/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.0).
+Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.1/Dropzone-0.1.1-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.1/Dropzone-0.1.1-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.1/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.1).
 
 Requires Apple Silicon and macOS 13+. This alpha is ad-hoc signed and not notarized: if macOS blocks first launch, review it in **System Settings → Privacy & Security**. The installer does not change security settings.
 
 Launch Dropzone, pick up a file, shake the pointer, and drop the file onto the shelf. Open settings with **⌘,** while Dropzone has focus.
 
-**Status: 0.1.0 alpha.** Native Swift + AppKit + SwiftUI application with English as the default language and Russian available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
+**Status: 0.1.1 alpha.** Native Swift + AppKit + SwiftUI application with English as the default language and Russian available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
 
 ## Build and run
 
@@ -44,7 +44,7 @@ Open `Package.swift` in Xcode to browse, build, and debug the targets. The build
 - Click the menu bar tray icon, press **⌥⇧Space**, or shake while dragging files from Finder.
 - On a MacBook with a camera notch, drag towards it for a glow; an outline marks the active drop zone.
 - Drop files or folders onto the shelf or menu bar icon. Add files from different locations.
-- Drag the compact stack to copy everything. Expand the shelf for grid/list views and select individual files; Command-click adds to selection.
+- Drag the compact stack to copy everything. Expand the shelf for grid/list views and select individual files; Shift-click selects the range from the anchor file; Command-click toggles only the clicked file.
 - **Space:** Quick Look. **⌘A:** select all. **Delete:** remove shelf references. **⌘F:** toggle follow. **⌘W:** close and clear shelf. **Escape:** hide shelf. **⌘,** opens Settings while Dropzone has keyboard focus, using the physical comma key in any layout.
 - Double-click a file to reveal it in Finder. The **…** menu provides file actions and settings. Right-click the menu bar icon for Quit and Settings.
 

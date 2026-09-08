@@ -194,3 +194,32 @@ final class ClosePolicyTests: XCTestCase {
         XCTAssertFalse(ClosePolicy.requiresConfirmation(count: 1000, enabled: false, threshold: 5))
     }
 }
+
+final class RangeSelectionTests: XCTestCase {
+    let ids = ["a", "b", "c", "d", "e", "f"]
+    func testShiftFirstClickThenRangeAndContraction() {
+        var model = RangeSelection()
+        var selected = model.select("a", orderedIDs: ids, selected: [], additive: false, range: true)
+        XCTAssertEqual(selected, ["a"])
+        selected = model.select("e", orderedIDs: ids, selected: selected, additive: false, range: true)
+        XCTAssertEqual(selected, Set(ids.prefix(5)))
+        selected = model.select("c", orderedIDs: ids, selected: selected, additive: false, range: true)
+        XCTAssertEqual(selected, ["a", "b", "c"])
+    }
+    func testReverseRangeAndCommandToggleOnlyClickedItems() {
+        var model = RangeSelection()
+        var selected = model.select("e", orderedIDs: ids, selected: [], additive: false, range: false)
+        selected = model.select("b", orderedIDs: ids, selected: selected, additive: false, range: true)
+        XCTAssertEqual(selected, ["b", "c", "d", "e"])
+        selected = model.select("f", orderedIDs: ids, selected: selected, additive: true, range: false)
+        selected = model.select("c", orderedIDs: ids, selected: selected, additive: true, range: false)
+        XCTAssertEqual(selected, ["b", "d", "e", "f"])
+    }
+    func testClearedOrRemovedAnchorDoesNotSelectStaleRange() {
+        var model = RangeSelection()
+        _ = model.select("a", orderedIDs: ids, selected: [], additive: false, range: false)
+        XCTAssertEqual(model.select("e", orderedIDs: Array(ids.dropFirst()), selected: [], additive: false, range: true), ["e"])
+        model.reset()
+        XCTAssertEqual(model.select("c", orderedIDs: ids, selected: [], additive: false, range: true), ["c"])
+    }
+}

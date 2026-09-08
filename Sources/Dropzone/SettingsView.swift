@@ -28,7 +28,7 @@ struct SettingsView: View {
                     }.buttonStyle(.bordered)
                 }.controlSize(.large).padding(.horizontal, 10).padding(.bottom, 16)
                 Label("Dropzone", systemImage: "tray.and.arrow.down.fill").font(.headline).padding(.horizontal, 14)
-                Text("0.1.0 · Alpha").font(.caption).foregroundStyle(.secondary).padding(.horizontal, 14).padding(.bottom, 20)
+                Text("\(Bundle.main.object(forInfoDictionaryKey: "CFBundleShortVersionString") as? String ?? "dev") · Alpha").font(.caption).foregroundStyle(.secondary).padding(.horizontal, 14).padding(.bottom, 20)
             }.frame(width: 196).padding(.horizontal, 10).background(.quaternary.opacity(0.5))
             Divider()
             ScrollView {
