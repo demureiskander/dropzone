@@ -97,3 +97,11 @@ git diff --check
 - Wide/compact window frames animate for 240 ms with ease-in/ease-out; Reduce Motion applies the final frame immediately.
 - A left click in the wide content background clears selection and its range anchor; file interaction views remain excluded.
 - Native source/destination identity, animation feel and background hit regions still require hands-on UI verification.
+
+## Smooth expansion — 0.1.7
+
+- Debug tests (30), release build, ad-hoc signature validation and whitespace checks pass.
+- Window geometry is interpolated on the common run loop at 60 Hz with quintic smoothstep over 300 ms; the final frame is assigned exactly.
+- Compact and detail content crossfade for 240 ms. Follow remains paused through the transition and for 200 ms afterward.
+- Reduce Motion still applies the destination frame immediately.
+- Animation feel remains a hands-on visual check.

@@ -16,7 +16,13 @@ struct ShelfView: View {
         VStack(spacing: 0) {
             header
             if store.loading { ProgressView().controlSize(.small).padding(6) }
-            if store.expanded { detail } else { compact }
+            ZStack {
+                if store.expanded {
+                    detail.transition(.opacity.combined(with: .scale(scale: 0.985)))
+                } else {
+                    compact.transition(.opacity.combined(with: .scale(scale: 0.985)))
+                }
+            }
             if let error = store.error {
                 HStack(alignment: .top) {
                     Image(systemName: "exclamationmark.circle").foregroundStyle(.orange)
@@ -30,6 +36,7 @@ struct ShelfView: View {
         .overlay(RoundedRectangle(cornerRadius: 26).strokeBorder(store.hovering ? Color.accentColor : Color.primary.opacity(0.22), lineWidth: store.hovering ? 3 : 1))
         .padding(3)
         .animation(reduceMotion ? nil : .easeOut(duration: 0.16), value: store.hovering)
+        .animation(reduceMotion ? nil : .easeInOut(duration: 0.24), value: store.expanded)
         .onExitCommand { controller.hide() }
     }
     private var header: some View {

@@ -32,6 +32,7 @@ import DropzoneCore
     private var previousPointer: CGPoint?
     private var approachHoldUntil: TimeInterval = 0
     private var timer: Timer?
+    private var frameAnimationTimer: Timer?
     private var visibilityTimer: Timer?
     private var wantsVisible = false
     private var lastTick = ProcessInfo.processInfo.systemUptime
@@ -134,28 +135,50 @@ import DropzoneCore
     func setExpanded(_ value: Bool) {
         guard store.expanded != value else { return }
         stopMotion()
+        frameAnimationTimer?.invalidate()
+        frameAnimationTimer = nil
         store.interaction = true
         store.expanded = value
         let size = value ? CGSize(width: 500, height: 342) : CGSize(width: 252, height: 254)
         let origin = FollowMotion.clamp(CGPoint(x: panel.frame.minX, y: panel.frame.maxY - size.height), size: size, screen: screenAt(pointer).visibleFrame)
-        let frame = NSRect(origin: origin, size: size)
+        let target = NSRect(origin: origin, size: size)
         guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
-            panel.setFrame(frame, display: true)
+            panel.setFrame(target, display: true)
             finishExpansion()
             return
         }
-        NSAnimationContext.runAnimationGroup { context in
-            context.duration = 0.24
-            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
-            panel.animator().setFrame(frame, display: true)
-        } completionHandler: { [weak self] in
-            Task { @MainActor in self?.finishExpansion() }
+        let start = panel.frame
+        let began = ProcessInfo.processInfo.systemUptime
+        let duration = 0.30
+        let clock = Timer(timeInterval: 1 / 60, repeats: true) { [weak self] clock in
+            MainActor.assumeIsolated {
+                guard let self else { clock.invalidate(); return }
+                let progress = min((ProcessInfo.processInfo.systemUptime - began) / duration, 1)
+                // Quintic smoothstep has zero velocity and acceleration at both ends.
+                let eased = progress * progress * progress * (progress * (progress * 6 - 15) + 10)
+                let frame = NSRect(
+                    x: start.minX + (target.minX - start.minX) * eased,
+                    y: start.minY + (target.minY - start.minY) * eased,
+                    width: start.width + (target.width - start.width) * eased,
+                    height: start.height + (target.height - start.height) * eased
+                )
+                self.panel.setFrame(frame, display: true)
+                if progress >= 1 {
+                    clock.invalidate()
+                    self.frameAnimationTimer = nil
+                    self.panel.setFrame(target, display: true)
+                    self.finishExpansion()
+                }
+            }
         }
+        clock.tolerance = 0.002
+        RunLoop.main.add(clock, forMode: .common)
+        frameAnimationTimer = clock
     }
     private func finishExpansion() {
         store.interaction = false
+        approachHoldUntil = ProcessInfo.processInfo.systemUptime + 0.20
         panel.makeKey(); panel.makeFirstResponder(hosting)
-        pointerMoved(NSEvent.mouseLocation)
     }
     fileprivate func clearSelectionIfBackground(_ event: NSEvent) {
         guard store.expanded, !store.selection.isEmpty,
