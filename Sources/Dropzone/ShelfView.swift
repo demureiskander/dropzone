@@ -132,7 +132,7 @@ struct ShelfView: View {
         FileInteraction(id: id, store: store, onDoubleClick: { controller.reveal() },
             onContext: { controller.showMenu(event: $0) }, onDragEnd: { operation in
                 if operation != [], !settings.keepOpen { controller.hide() }
-            })
+            }, onInteraction: { controller.setInteraction($0) })
     }
     private func roundButton(_ symbol: String, label: String, active: Bool = false, action: @escaping () -> Void) -> some View {
         Button(action: action) {

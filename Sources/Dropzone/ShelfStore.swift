@@ -77,7 +77,12 @@ import Combine
     }
     func removeSelection() {
         let ids = Set(chosen.map(\.id))
-        items.removeAll { ids.contains($0.id) }; selection.subtract(ids)
+        remove(ids: ids)
+    }
+    func remove(ids: Set<String>) {
+        items.removeAll { ids.contains($0.id) }
+        selection.subtract(ids)
+        if items.isEmpty { rangeSelection.reset() }
     }
     func select(_ id: String, additive: Bool, range: Bool = false) {
         selection = rangeSelection.select(id, orderedIDs: items.map(\.id), selected: selection, additive: additive, range: range)
@@ -87,5 +92,12 @@ import Combine
         let refreshed = chosen.map { $0.refreshed() }
         if refreshed.contains(where: { !$0.available }) { error = "Некоторые файлы недоступны. Проверьте оригиналы в Finder." }
         return refreshed.filter(\.available).map(\.url)
+    }
+
+    func exportPayload() -> (urls: [URL], ids: Set<String>) {
+        let refreshed = chosen.map { $0.refreshed() }
+        if refreshed.contains(where: { !$0.available }) { error = "Некоторые файлы недоступны. Проверьте оригиналы в Finder." }
+        let available = refreshed.filter(\.available)
+        return (available.map(\.url), Set(available.map(\.id)))
     }
 }

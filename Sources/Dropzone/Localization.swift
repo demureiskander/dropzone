@@ -76,7 +76,7 @@ private let englishStrings: [String: String] = [
     "Показать список": "Show List",
     "Полка плавно держится сбоку. При приближении к ней и работе с файлами движение останавливается. Переключатель также есть на самой полке.": "The shelf follows beside your pointer and pauses when you get close or interact with files. You can also toggle this on the shelf.",
     "Полка появляется, когда нужна.": "Your shelf, when you need it.",
-    "При выключении полка скрывается после принятого перетаскивания. Содержимое сохраняется до закрытия крестиком, очистки или выхода.": "When off, the shelf hides after a successful drop. Files stay on the shelf until you close it with ×, clear it, or quit.",
+    "При выключении полка скрывается после успешного переноса. Перенесённые элементы удаляются с полки; отменённые остаются.": "When off, the shelf hides after a successful drop. Transferred items leave the shelf; cancelled items remain.",
     "Применяется сразу.": "Changes take effect immediately.",
     "Пробел": "Space",
     "Пробел — Quick Look · ⌘A — выбрать всё\nDelete — убрать с полки · ⌘F — следование\n⌘, — настройки (при активной полке, любая раскладка)": "Space — Quick Look · ⌘A — Select All\nDelete — Remove from Shelf · ⌘F — Follow\n⌘, — Settings (when focused, in any layout)",

@@ -84,7 +84,7 @@ struct SettingsView: View {
             }
             card {
                 Toggle(L("Оставлять открытой после передачи"), isOn: $settings.keepOpen).toggleStyle(.switch)
-                Text(L("При выключении полка скрывается после принятого перетаскивания. Содержимое сохраняется до закрытия крестиком, очистки или выхода.")).font(.caption).foregroundStyle(.secondary)
+                Text(L("При выключении полка скрывается после успешного переноса. Перенесённые элементы удаляются с полки; отменённые остаются.")).font(.caption).foregroundStyle(.secondary)
             }
             card {
                 Toggle(L("Подтверждать закрытие"), isOn: $settings.confirmClose).toggleStyle(.switch)

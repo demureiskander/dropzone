@@ -223,3 +223,28 @@ final class RangeSelectionTests: XCTestCase {
         XCTAssertEqual(model.select("c", orderedIDs: ids, selected: [], additive: false, range: true), ["c"])
     }
 }
+
+final class PointerApproachTests: XCTestCase {
+    private let shelf = CGRect(x: 400, y: 300, width: 252, height: 254)
+
+    func testFastMovementAimedAtShelfIsCapturedEarly() {
+        XCTAssertTrue(PointerApproach.isAimingAtShelf(
+            previous: CGPoint(x: 250, y: 400), current: CGPoint(x: 310, y: 400), frame: shelf
+        ))
+    }
+
+    func testFastMovementAwayOrPastShelfDoesNotCapture() {
+        XCTAssertFalse(PointerApproach.isAimingAtShelf(
+            previous: CGPoint(x: 310, y: 400), current: CGPoint(x: 250, y: 400), frame: shelf
+        ))
+        XCTAssertFalse(PointerApproach.isAimingAtShelf(
+            previous: CGPoint(x: 250, y: 100), current: CGPoint(x: 310, y: 100), frame: shelf
+        ))
+    }
+
+    func testSmallPointerJitterDoesNotCapture() {
+        XCTAssertFalse(PointerApproach.isAimingAtShelf(
+            previous: CGPoint(x: 390, y: 400), current: CGPoint(x: 395, y: 400), frame: shelf
+        ))
+    }
+}

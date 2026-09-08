@@ -65,10 +65,12 @@ struct FileInteraction: NSViewRepresentable {
     var onDoubleClick: () -> Void
     var onContext: (NSEvent) -> Void
     var onDragEnd: (NSDragOperation) -> Void
+    var onInteraction: (Bool) -> Void
     func makeNSView(context: Context) -> FileInteractionView { FileInteractionView() }
     func updateNSView(_ view: FileInteractionView, context: Context) {
         view.itemID = id; view.store = store
         view.onDoubleClick = onDoubleClick; view.onContext = onContext; view.onDragEnd = onDragEnd
+        view.onInteraction = onInteraction
     }
 }
 
@@ -78,11 +80,14 @@ struct FileInteraction: NSViewRepresentable {
     var onDoubleClick: (() -> Void)?
     var onContext: ((NSEvent) -> Void)?
     var onDragEnd: ((NSDragOperation) -> Void)?
+    var onInteraction: ((Bool) -> Void)?
     private var start: NSEvent?
+    private var exportedIDs: Set<String> = []
     override var acceptsFirstResponder: Bool { true }
     override func mouseDown(with event: NSEvent) {
+        onInteraction?(true)
         window?.makeKey(); window?.makeFirstResponder(superview)
-        if event.modifierFlags.contains(.control) { rightMouseDown(with: event); return }
+        if event.modifierFlags.contains(.control) { onInteraction?(false); rightMouseDown(with: event); return }
         start = event
         if let id = itemID {
             if event.modifierFlags.contains(.command) { store?.select(id, additive: true) }
@@ -91,7 +96,7 @@ struct FileInteraction: NSViewRepresentable {
         }
         if event.clickCount == 2 { onDoubleClick?() }
     }
-    override func mouseUp(with event: NSEvent) { start = nil }
+    override func mouseUp(with event: NSEvent) { start = nil; onInteraction?(false) }
     override func rightMouseDown(with event: NSEvent) {
         if let id = itemID, store?.selection.contains(id) != true { store?.select(id, additive: false) }
         onContext?(event)
@@ -100,8 +105,10 @@ struct FileInteraction: NSViewRepresentable {
         guard let start, let store else { return }
         guard hypot(event.locationInWindow.x - start.locationInWindow.x, event.locationInWindow.y - start.locationInWindow.y) > 4 else { return }
         if itemID == nil { store.selection = [] }
-        let urls = store.validURLs()
-        guard !urls.isEmpty else { return }
+        let payload = store.exportPayload()
+        let urls = payload.urls
+        guard !urls.isEmpty else { onInteraction?(false); return }
+        exportedIDs = payload.ids
         self.start = nil
         let p = convert(event.locationInWindow, from: nil)
         let drags = urls.map { url -> NSDraggingItem in
@@ -119,6 +126,9 @@ struct FileInteraction: NSViewRepresentable {
     func ignoreModifierKeys(for session: NSDraggingSession) -> Bool { true }
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
         store?.exporting = false
+        if operation != [] { store?.remove(ids: exportedIDs) }
+        exportedIDs = []
+        onInteraction?(false)
         onDragEnd?(operation)
     }
 }

@@ -19,13 +19,13 @@ The `trust` line is for Homebrew 6 and newer; skip it on older versions. The tap
 
 ### Direct download
 
-Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.3/Dropzone-0.1.3-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.3/Dropzone-0.1.3-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.3/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.3).
+Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.4/Dropzone-0.1.4-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.4/Dropzone-0.1.4-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.4/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.4).
 
 Requires Apple Silicon and macOS 13+. This alpha is ad-hoc signed and not notarized: if macOS blocks first launch, review it in **System Settings → Privacy & Security**. The installer does not change security settings.
 
 Launch Dropzone, pick up a file, shake the pointer, and drop the file onto the shelf. Open settings with **⌘,** while Dropzone has focus.
 
-**Status: 0.1.3 alpha.** Native Swift + AppKit + SwiftUI application with English as the default language and Russian available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
+**Status: 0.1.4 alpha.** Native Swift + AppKit + SwiftUI application with English as the default language and Russian available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
 
 ## Build and run
 
@@ -54,7 +54,7 @@ Follow mode is enabled by default. The shelf moves alongside the pointer, change
 
 ## File handling
 
-Adding a Finder file stores a reference to the original. Dragging out supports **copy only**. Clearing the shelf does not delete the originals. Closing with **×** or **⌘W** clears the shelf. By default, closing more than five items asks for confirmation; the toggle and threshold (1–1000) are in Settings → Shelf Behavior. Cancel keeps the shelf intact. Escape, the tray toggle, and hiding after a successful drag preserve the shelf for this session; quitting discards the temporary list. Renamed files are resolved through bookmarks; missing files are marked unavailable when refreshed. Images and videos can show thumbnails; documents retain their system file icons.
+Adding a Finder file stores a reference to the original. Dragging out supports **copy only**. A successful drop removes the transferred references from the shelf; cancelling or rejecting the drag keeps them. Clearing the shelf does not delete the originals. Closing with **×** or **⌘W** clears the shelf. By default, closing more than five items asks for confirmation; the toggle and threshold (1–1000) are in Settings → Shelf Behavior. Cancel keeps the shelf intact. Escape and the tray toggle preserve the shelf for this session; quitting discards the temporary list. Renamed files are resolved through bookmarks; missing files are marked unavailable when refreshed. Images and videos can show thumbnails; documents retain their system file icons.
 
 This alpha accepts file URLs. Browser image exports, Photos file promises, text/URL snippets, automatic screenshot capture, multiple shelves, and cloud services are not included yet. Some source applications provide files differently and may not be compatible. See [validation](docs/VALIDATION.md) for what has actually been tested.
 

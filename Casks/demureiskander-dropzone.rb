@@ -1,6 +1,6 @@
 cask "demureiskander-dropzone" do
-  version "0.1.3"
-  sha256 "ac7ddca9413f97c47be802cdc4ec9f1f296b8137e35ccc26fa3140fee890e1c1"
+  version "0.1.4"
+  sha256 "cee52836508444bd8d7b1fbe2a1480c7b0116c3e5debc7de7ebc0f485c15ce3f"
 
   url "https://github.com/demureiskander/dropzone/releases/download/v#{version}/Dropzone-#{version}-macOS-arm64.dmg"
   name "Dropzone"

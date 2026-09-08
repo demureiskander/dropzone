@@ -127,3 +127,34 @@ public struct FollowMotion {
         return CGPoint(x: from.x + (to.x - from.x) * alpha, y: from.y + (to.y - from.y) * alpha)
     }
 }
+
+public enum PointerApproach {
+    /// Predicts a short continuation of a fast pointer movement. This lets a
+    /// moving shelf stop before it can slide away from an intentional click.
+    public static func isAimingAtShelf(previous: CGPoint, current: CGPoint, frame: CGRect) -> Bool {
+        let delta = CGPoint(x: current.x - previous.x, y: current.y - previous.y)
+        guard hypot(delta.x, delta.y) >= 12 else { return false }
+        let target = frame.insetBy(dx: -12, dy: -12)
+        let projected = CGPoint(x: current.x + delta.x * 2.5, y: current.y + delta.y * 2.5)
+        return segment(previous, projected, intersects: target)
+    }
+
+    private static func segment(_ start: CGPoint, _ end: CGPoint, intersects rect: CGRect) -> Bool {
+        if rect.contains(start) || rect.contains(end) { return true }
+        let dx = end.x - start.x
+        let dy = end.y - start.y
+        var low: CGFloat = 0
+        var high: CGFloat = 1
+        for (p, q) in [(-dx, start.x - rect.minX), (dx, rect.maxX - start.x),
+                       (-dy, start.y - rect.minY), (dy, rect.maxY - start.y)] {
+            if p == 0 {
+                if q < 0 { return false }
+            } else {
+                let ratio = q / p
+                if p < 0 { low = max(low, ratio) } else { high = min(high, ratio) }
+                if low > high { return false }
+            }
+        }
+        return true
+    }
+}

@@ -25,6 +25,8 @@ import DropzoneCore
     private var inertia = InertialFollower()
     weak var menuAnchor: NSView?
     private var pointer = NSEvent.mouseLocation
+    private var previousPointer: CGPoint?
+    private var approachHoldUntil: TimeInterval = 0
     private var timer: Timer?
     private var visibilityTimer: Timer?
     private var wantsVisible = false
@@ -140,6 +142,11 @@ import DropzoneCore
     func pointerMoved(_ point: CGPoint) {
         pointer = point
         let now = ProcessInfo.processInfo.systemUptime
+        if let previousPointer, PointerApproach.isAimingAtShelf(previous: previousPointer, current: point, frame: panel.frame) {
+            approachHoldUntil = now + 0.25
+            stopMotion()
+        }
+        previousPointer = point
         motion.observe(point, time: now)
         guard visible, settings.follow else { return }
         if timer == nil {
@@ -156,7 +163,7 @@ import DropzoneCore
         guard visible, settings.follow else { stopMotion(); return }
         let now = ProcessInfo.processInfo.systemUptime
         let dt = now - lastTick; lastTick = now
-        let interacting = confirmingClose || store.hovering || store.interaction || store.exporting || store.menuOpen || QLPreviewPanel.sharedPreviewPanelExists() && QLPreviewPanel.shared().isVisible
+        let interacting = confirmingClose || now < approachHoldUntil || store.hovering || store.interaction || store.exporting || store.menuOpen || QLPreviewPanel.sharedPreviewPanelExists() && QLPreviewPanel.shared().isVisible
         let paused = motion.isPaused(pointer: pointer, frame: panel.frame, time: now, interacting: interacting)
         if interacting { stopMotion(); return }
         let target = motion.target(pointer: pointer, size: panel.frame.size, screen: screenAt(pointer).visibleFrame)
@@ -172,6 +179,11 @@ import DropzoneCore
         if hypot(next.x - target.x, next.y - target.y) < 0.5 && inertia.speed < 1 { panel.setFrameOrigin(target); stopMotion() }
     }
     private func stopMotion() { timer?.invalidate(); timer = nil; inertia.reset() }
+    func setInteraction(_ active: Bool) {
+        store.interaction = active
+        if active { approachHoldUntil = ProcessInfo.processInfo.systemUptime + 0.25; stopMotion() }
+        else { pointerMoved(NSEvent.mouseLocation) }
+    }
     private func screenAt(_ point: CGPoint) -> NSScreen { NSScreen.screens.first { $0.frame.contains(point) } ?? NSScreen.main ?? NSScreen.screens[0] }
     func showMenu(event: NSEvent? = nil) {
         let menu = NSMenu(); menu.delegate = self

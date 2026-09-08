@@ -74,3 +74,10 @@ git diff --check
 - Dock visibility updates both `NSApplication.ActivationPolicy` and the process presentation type on the main queue.
 - With Show in Dock disabled, both the installed 0.1.2 process and the test 0.1.3 process reported activation policy `accessory` (`rawValue == 1`). Two copies were running during diagnosis; release testing must leave only the installed copy active.
 - Debug tests (25), release build, ad-hoc signature validation, cask syntax and DMG checksum passed.
+
+## Drag-out completion and immediate interaction — 0.1.4
+
+- 28 XCTest cases pass, including fast pointer movement aimed at the shelf, movement away from it and small pointer jitter.
+- A successful native dragging session removes the exact set of accessible exported references. A cancelled or rejected session reports an empty operation and keeps the shelf intact.
+- Mouse-down fixes the shelf synchronously. Fast approach prediction stops follow motion before the pointer reaches the shelf, reducing the chance that the target moves away during a rapid grab.
+- Cross-application drag-out still requires hands-on verification because unit tests cannot establish destination behavior in Finder and every third-party application.
