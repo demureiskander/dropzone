@@ -14,5 +14,7 @@ mkdir -p "$app_path/Contents/MacOS" "$app_path/Contents/Resources"
 cp "$bin_path/Dropzone" "$app_path/Contents/MacOS/Dropzone"
 cp Resources/Info.plist "$app_path/Contents/Info.plist"
 if [[ -f Resources/AppIcon.icns ]]; then cp Resources/AppIcon.icns "$app_path/Contents/Resources/AppIcon.icns"; fi
+cp LICENSE "$app_path/Contents/Resources/LICENSE"
+cp NOTICE "$app_path/Contents/Resources/NOTICE"
 codesign --force --sign - "$app_path"
 echo "$app_path"

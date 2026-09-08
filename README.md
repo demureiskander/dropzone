@@ -1,6 +1,29 @@
+<p align="center"><img src="Resources/AppIcon.png" width="128" alt="Dropzone app icon"></p>
+
 # Dropzone
 
 A free, native macOS file shelf. Collect files, switch apps, and drag them out when you need them. No accounts, cloud uploads, analytics, or artificial delays.
+
+## Quick Start
+
+### Homebrew · Apple Silicon
+
+```sh
+brew tap demureiskander/dropzone https://github.com/demureiskander/dropzone.git
+brew trust --cask demureiskander/dropzone/demureiskander-dropzone
+brew install --cask demureiskander/dropzone/demureiskander-dropzone
+open -a Dropzone
+```
+
+The `trust` line is for Homebrew 6 and newer; skip it on older versions. The tap lives in this repository. The distinct cask name avoids confusion with Aptonic's commercial Dropzone.
+
+### Direct download
+
+Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.0/Dropzone-0.1.0-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.0/Dropzone-0.1.0-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.0/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.0).
+
+Requires Apple Silicon and macOS 13+. This alpha is ad-hoc signed and not notarized: if macOS blocks first launch, review it in **System Settings → Privacy & Security**. The installer does not change security settings.
+
+Launch Dropzone, pick up a file, shake the pointer, and drop the file onto the shelf. Open settings with **⌘,** while Dropzone has focus.
 
 **Status: 0.1.0 alpha.** Native Swift + AppKit + SwiftUI application with English as the default language and Russian available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
 
@@ -33,6 +56,10 @@ Adding a Finder file stores a reference to the original. Dragging out supports *
 
 This alpha accepts file URLs. Browser image exports, Photos file promises, text/URL snippets, automatic screenshot capture, multiple shelves, and cloud services are not included yet. Some source applications provide files differently and may not be compatible. See [validation](docs/VALIDATION.md) for what has actually been tested.
 
+## Support
+
+[Donate via Tribute](https://web.tribute.tg/d/GLT) · [GitHub repository](https://github.com/demureiskander/dropzone)
+
 ## Development
 
 - [Project instructions](CLAUDE.md)
@@ -44,10 +71,12 @@ This alpha accepts file URLs. Browser image exports, Photos file promises, text/
 - [Changelog](CHANGELOG.md)
 - [Icon provenance and prompt](Resources/ASSET_PROVENANCE.md)
 
+Run `scripts/package.sh` to produce DMG, ZIP and SHA256SUMS.txt in `build/releases`. The cask is in `Casks/demureiskander-dropzone.rb`; update its version and DMG checksum when publishing a new release. Packaging includes LICENSE and NOTICE in the app bundle.
+
 The core motion and file-reference logic is isolated in `Sources/DropzoneCore`; the app lives in `Sources/Dropzone`. Run `swift test` for behavioral tests, `scripts/build.sh release` to create the application, and `scripts/icon.sh` to regenerate the ICNS from the included PNG. A [CI template](docs/ci/build.yml.example) builds and tests on macOS and uploads a development build. It is not enabled: the available GitHub token lacks the `workflow` scope. To enable it with suitable credentials, copy it to `.github/workflows/build.yml`.
 
 Only [demureiskander/dropzone](https://github.com/demureiskander/dropzone) is authorized for this project's GitHub work. Private local visual references under `design/references/` are excluded from Git and the app bundle.
 
 ## License and name
 
-[MIT](LICENSE). Dropzone is the author's working name. A separate [Dropzone product by Aptonic](https://aptonic.com/releasenotes) already exists; this project is independent of Aptonic and Dropover. A distinct public product name remains a release-planning decision.
+[Apache License 2.0](LICENSE). Dropzone is the author's working name. A separate [Dropzone product by Aptonic](https://aptonic.com/releasenotes) already exists; this project is independent of Aptonic and Dropover. A distinct public product name remains a release-planning decision.
