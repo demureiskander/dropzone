@@ -4,6 +4,8 @@
 
 A free, native macOS file shelf. Collect files, switch apps, and drag them out when you need them. No accounts, cloud uploads, analytics, or artificial delays.
 
+https://github.com/user-attachments/assets/d1c0c1c1-cd83-49cb-83d6-b6b0d28dbbbf
+
 ## Quick Start
 
 ### Homebrew · Apple Silicon
