@@ -14,6 +14,10 @@ import DropzoneCore
         panel.delegate = owner
     }
     override func endPreviewPanelControl(_ panel: QLPreviewPanel!) { panel.dataSource = nil; panel.delegate = nil }
+    override func sendEvent(_ event: NSEvent) {
+        if event.type == .leftMouseDown { owner?.clearSelectionIfBackground(event) }
+        super.sendEvent(event)
+    }
 }
 
 @MainActor final class ShelfController: NSObject, NSMenuDelegate, @preconcurrency QLPreviewPanelDataSource, QLPreviewPanelDelegate {
@@ -128,12 +132,40 @@ import DropzoneCore
     }
     func toggle() { visible ? hide() : show(activate: true) }
     func setExpanded(_ value: Bool) {
+        guard store.expanded != value else { return }
+        stopMotion()
+        store.interaction = true
         store.expanded = value
         let size = value ? CGSize(width: 500, height: 342) : CGSize(width: 252, height: 254)
         let origin = FollowMotion.clamp(CGPoint(x: panel.frame.minX, y: panel.frame.maxY - size.height), size: size, screen: screenAt(pointer).visibleFrame)
-        panel.setFrame(NSRect(origin: origin, size: size), display: true)
+        let frame = NSRect(origin: origin, size: size)
+        guard !NSWorkspace.shared.accessibilityDisplayShouldReduceMotion else {
+            panel.setFrame(frame, display: true)
+            finishExpansion()
+            return
+        }
+        NSAnimationContext.runAnimationGroup { context in
+            context.duration = 0.24
+            context.timingFunction = CAMediaTimingFunction(name: .easeInEaseOut)
+            panel.animator().setFrame(frame, display: true)
+        } completionHandler: { [weak self] in
+            Task { @MainActor in self?.finishExpansion() }
+        }
+    }
+    private func finishExpansion() {
+        store.interaction = false
         panel.makeKey(); panel.makeFirstResponder(hosting)
         pointerMoved(NSEvent.mouseLocation)
+    }
+    fileprivate func clearSelectionIfBackground(_ event: NSEvent) {
+        guard store.expanded, !store.selection.isEmpty,
+              event.locationInWindow.y < panel.contentLayoutRect.height - 58 else { return }
+        var view = panel.contentView?.hitTest(event.locationInWindow)
+        while let current = view {
+            if current is FileInteractionView { return }
+            view = current.superview
+        }
+        store.clearSelection()
     }
     func screensChanged() {
         guard visible else { return }

@@ -248,3 +248,18 @@ final class PointerApproachTests: XCTestCase {
         ))
     }
 }
+
+final class DragCompletionTests: XCTestCase {
+    func testReturningToShelfNeverRemovesExportedItems() {
+        XCTAssertFalse(DragCompletion.shouldRemove(succeeded: true, returnedToShelf: true))
+        XCTAssertTrue(DragCompletion.shouldRemove(succeeded: true, returnedToShelf: false))
+        XCTAssertFalse(DragCompletion.shouldRemove(succeeded: false, returnedToShelf: false))
+    }
+
+    func testSuccessfulExportHidesOnlyAnEmptyShelf() {
+        XCTAssertTrue(DragCompletion.shouldHide(succeeded: true, remainingCount: 0, keepOpen: false))
+        XCTAssertFalse(DragCompletion.shouldHide(succeeded: true, remainingCount: 1, keepOpen: false))
+        XCTAssertFalse(DragCompletion.shouldHide(succeeded: true, remainingCount: 0, keepOpen: true))
+        XCTAssertFalse(DragCompletion.shouldHide(succeeded: false, remainingCount: 0, keepOpen: false))
+    }
+}

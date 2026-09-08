@@ -88,6 +88,7 @@ import Combine
         selection = rangeSelection.select(id, orderedIDs: items.map(\.id), selected: selection, additive: additive, range: range)
     }
     func selectAll() { selection = Set(items.map(\.id)) }
+    func clearSelection() { selection = []; rangeSelection.reset() }
     func validURLs() -> [URL] {
         let refreshed = chosen.map { $0.refreshed() }
         if refreshed.contains(where: { !$0.available }) { error = "Некоторые файлы недоступны. Проверьте оригиналы в Finder." }

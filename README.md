@@ -21,13 +21,13 @@ The `trust` line is for Homebrew 6 and newer; skip it on older versions. The tap
 
 ### Direct download
 
-Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.5/Dropzone-0.1.5-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.5/Dropzone-0.1.5-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.5/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.5).
+Download the [DMG](https://github.com/demureiskander/dropzone/releases/download/v0.1.6/Dropzone-0.1.6-macOS-arm64.dmg) or [ZIP](https://github.com/demureiskander/dropzone/releases/download/v0.1.6/Dropzone-0.1.6-macOS-arm64.zip), then move **Dropzone.app** into **Applications**. [Checksums](https://github.com/demureiskander/dropzone/releases/download/v0.1.6/SHA256SUMS.txt) are attached to the [release](https://github.com/demureiskander/dropzone/releases/tag/v0.1.6).
 
 Requires Apple Silicon and macOS 13+. This alpha is ad-hoc signed and not notarized: if macOS blocks first launch, review it in **System Settings → Privacy & Security**. The installer does not change security settings.
 
 Launch Dropzone, pick up a file, shake the pointer, and drop the file onto the shelf. Open settings with **⌘,** while Dropzone has focus.
 
-**Status: 0.1.5 alpha.** Native Swift + AppKit + SwiftUI application. A first-run onboarding explains the basic workflow. English is used by default; Russian is selected initially when macOS prefers Russian and remains available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
+**Status: 0.1.6 alpha.** Native Swift + AppKit + SwiftUI application. A first-run onboarding explains the basic workflow. English is used by default; Russian is selected initially when macOS prefers Russian and remains available in Settings → General → Language. Changes apply immediately and persist between launches. Tested locally on Apple Silicon with macOS 26.5.2 and Xcode 26.6. Deployment target is macOS 13; older systems and Intel hardware have not yet been validated.
 
 ## Build and run
 

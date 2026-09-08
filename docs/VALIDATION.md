@@ -88,3 +88,12 @@ git diff --check
 - The onboarding is presented only when neither the new completion flag nor the legacy launch flag is set. Completing it records both flags and opens the shelf.
 - The initial language follows the first macOS preferred language only when no explicit app language exists: Russian for `ru-*`, English otherwise. The language menu updates onboarding immediately.
 - Exact layout and first-run persistence should still be checked manually from a clean preferences domain.
+
+## Shelf return, remaining items and expansion — 0.1.6
+
+- Debug tests (30), release build, ad-hoc signature validation and whitespace checks pass.
+- A drop whose native dragging source is the shelf marks the session as returned: exported references remain and the hide callback receives a cancelled operation.
+- External successful sessions remove their exact exported IDs. Auto-hide now additionally requires the resulting shelf to be empty.
+- Wide/compact window frames animate for 240 ms with ease-in/ease-out; Reduce Motion applies the final frame immediately.
+- A left click in the wide content background clears selection and its range anchor; file interaction views remain excluded.
+- Native source/destination identity, animation feel and background hit regions still require hands-on UI verification.

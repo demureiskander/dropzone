@@ -1,5 +1,6 @@
 import AppKit
 import SwiftUI
+import DropzoneCore
 
 @MainActor enum FileDrag {
     static func urls(_ pasteboard: NSPasteboard) -> [URL] {
@@ -35,6 +36,10 @@ import SwiftUI
     override func performDragOperation(_ sender: NSDraggingInfo) -> Bool {
         defer { onHover?(false) }
         guard FileDrag.accepts(sender) else { return false }
+        if let source = sender.draggingSource as? FileInteractionView {
+            source.returnedToShelf = true
+            return true
+        }
         onDrop?(FileDrag.urls(sender.draggingPasteboard))
         return true
     }
@@ -83,6 +88,7 @@ struct FileInteraction: NSViewRepresentable {
     var onInteraction: ((Bool) -> Void)?
     private var start: NSEvent?
     private var exportedIDs: Set<String> = []
+    fileprivate var returnedToShelf = false
     override var acceptsFirstResponder: Bool { true }
     override func mouseDown(with event: NSEvent) {
         onInteraction?(true)
@@ -109,6 +115,7 @@ struct FileInteraction: NSViewRepresentable {
         let urls = payload.urls
         guard !urls.isEmpty else { onInteraction?(false); return }
         exportedIDs = payload.ids
+        returnedToShelf = false
         self.start = nil
         let p = convert(event.locationInWindow, from: nil)
         let drags = urls.map { url -> NSDraggingItem in
@@ -126,10 +133,13 @@ struct FileInteraction: NSViewRepresentable {
     func ignoreModifierKeys(for session: NSDraggingSession) -> Bool { true }
     func draggingSession(_ session: NSDraggingSession, endedAt screenPoint: NSPoint, operation: NSDragOperation) {
         store?.exporting = false
-        if operation != [] { store?.remove(ids: exportedIDs) }
+        if DragCompletion.shouldRemove(succeeded: operation != [], returnedToShelf: returnedToShelf) {
+            store?.remove(ids: exportedIDs)
+        }
         exportedIDs = []
         onInteraction?(false)
-        onDragEnd?(operation)
+        onDragEnd?(returnedToShelf ? [] : operation)
+        returnedToShelf = false
     }
 }
 
