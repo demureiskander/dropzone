@@ -40,6 +40,7 @@ private let englishStrings: [String: String] = [
     "Закрыть и очистить полку": "Close and Clear Shelf",
     "Закрыть полку и очистить содержимое?": "Close and clear the shelf?",
     "Запускать при входе": "Launch at Login",
+    "Эта сборка установлена без подписи Apple Developer, поэтому macOS не разрешает включить автозапуск из приложения. Добавьте Dropzone вручную: Системные настройки → Основные → Объекты входа.": "This build is installed without an Apple Developer signature, so macOS cannot enable launch at login from the app. Add Dropzone manually in System Settings → General → Login Items.",
     "Клавиша ": "Key ",
     "Крестик и ⌘W закрывают полку и очищают её. При превышении порога появится вопрос. Оригиналы файлов сохраняются.": "× and ⌘W close and clear the shelf. Above this limit, you will be asked to confirm. Original files are kept.",
     "Мягкое свечение при приближении. Синяя обводка — можно отпускать файл. Доступно на дисплее с вырезом камеры.": "A soft glow as you approach. A blue outline means you can drop. Available on displays with a camera notch.",

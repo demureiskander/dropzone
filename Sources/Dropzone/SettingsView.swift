@@ -1,6 +1,7 @@
 import SwiftUI
 import AppKit
 import ServiceManagement
+import Security
 import Carbon
 
 struct SettingsView: View {
@@ -117,14 +118,10 @@ struct SettingsView: View {
                     Text(L("Системное")).tag("system"); Text(L("Светлое")).tag("light"); Text(L("Тёмное")).tag("dark")
                 }
                 Divider()
-                Toggle(L("Запускать при входе"), isOn: $launchAtLogin).toggleStyle(.switch)
-                    .onChange(of: launchAtLogin) { enabled in
-                        do {
-                            if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
-                            loginError = SMAppService.mainApp.status == .requiresApproval ? "Подтвердите запуск в Системных настройках → Основные → Объекты входа." : nil
-                        } catch { loginError = error.localizedDescription }
-                        launchAtLogin = SMAppService.mainApp.status == .enabled
-                    }
+                Toggle(L("Запускать при входе"), isOn: Binding(
+                    get: { launchAtLogin },
+                    set: { updateLaunchAtLogin($0) }
+                )).toggleStyle(.switch)
                 if let loginError { Text(L(loginError)).font(.caption).foregroundStyle(.orange) }
             }
             card {
@@ -139,6 +136,33 @@ struct SettingsView: View {
                     .font(.caption).foregroundStyle(.secondary)
             }
         }
+    }
+
+    private var hasDeveloperSignature: Bool {
+        guard let executableURL = Bundle.main.executableURL else { return false }
+        var staticCode: SecStaticCode?
+        guard SecStaticCodeCreateWithPath(executableURL as CFURL, [], &staticCode) == errSecSuccess,
+              let staticCode else { return false }
+        var signingInformation: CFDictionary?
+        guard SecCodeCopySigningInformation(staticCode, SecCSFlags(rawValue: kSecCSSigningInformation), &signingInformation) == errSecSuccess,
+              let information = signingInformation as? [CFString: Any],
+              let teamIdentifier = information[kSecCodeInfoTeamIdentifier] as? String else { return false }
+        return !teamIdentifier.isEmpty
+    }
+
+    private func updateLaunchAtLogin(_ enabled: Bool) {
+        if enabled && !hasDeveloperSignature {
+            loginError = "Эта сборка установлена без подписи Apple Developer, поэтому macOS не разрешает включить автозапуск из приложения. Добавьте Dropzone вручную: Системные настройки → Основные → Объекты входа."
+            launchAtLogin = false
+            return
+        }
+        do {
+            if enabled { try SMAppService.mainApp.register() } else { try SMAppService.mainApp.unregister() }
+            loginError = SMAppService.mainApp.status == .requiresApproval ? "Подтвердите запуск в Системных настройках → Основные → Объекты входа." : nil
+        } catch {
+            loginError = error.localizedDescription
+        }
+        launchAtLogin = SMAppService.mainApp.status == .enabled
     }
 }
 
